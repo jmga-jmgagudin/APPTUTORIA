@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLICACIÓN TUTORÍA</title>
+    
+    <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Iconos --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1f2937; /* bg-gray-800 */
+        }
+
+        /* Barra de scroll */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #374151; /* bg-gray-700 */ }
+        ::-webkit-scrollbar-thumb { background: #fb923c; /* orange-400 */ border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f97316; /* orange-500 */ }
+
+        /* Placeholders */
+        ::placeholder { color: #9ca3af; /* gray-400 */ opacity: 1; }
+
+        /* Estilo para inputs y selects */
+        .form-element {
+            background-color: #374151; /* bg-gray-700 */
+            border: 1px solid #4b5563; /* border-gray-600 */
+            color: #f3f4f6; /* text-gray-100 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-element:focus {
+            outline: none;
+            border-color: #fb923c; /* orange-400 */
+            box-shadow: 0 0 0 2px #374151, 0 0 0 4px #fb923c;
+        }
+        /* Estilo para selects en el modal (para que se vea la flecha) */
+        .form-element-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-right: 2.5rem;
+        }
+        
+        /* Ajustes de la tabla */
+        .table-responsive-container { overflow-x: auto; }
+        table { min-width: 1650px; } /* Vuelve al ancho original */
+        th { white-space: normal; vertical-align: top; }
+        td { white-space: nowrap; }
+        td .form-element { min-width: 150px; }
+        .textarea-container { position: relative; min-width: 250px; }
+        .textarea-container textarea { white-space: pre-wrap; }
+        
+        /* Botón de timestamp */
+        .add-timestamp-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563; /* bg-gray-600 */
+            color: #d1d5db; /* text-gray-300 */
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-timestamp-button:hover { background-color: #6b7280; /* bg-gray-500 */ }
+
+        /* Estilo para filas de alumnos inactivos */
+        .student-inactive {
+            opacity: 0.5;
+            text-decoration: line-through;
+            background-color: #2a3442;
+        }
+        .student-inactive:hover { opacity: 0.7; }
+
+        /* Estilo para alumnos menores de edad */
+        .student-underage {
+            border-left: 4px solid #ef4444 !important; /* !border-red-500 */
+        }
+        .student-underage:hover {
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        /* Modales */
+        .modal-backdrop {
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* --- MEJORA 7: ESTILOS PARA FICHA RÁPIDA --- */
+        .quick-view-log {
+            white-space: pre-wrap; /* Respeta saltos de línea y espacios */
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #4b5563; /* border-gray-600 */
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .quick-view-log:empty::before {
+            content: "(Sin anotaciones)";
+            color: #9ca3af; /* gray-400 */
+            font-style: italic;
+        }
+
+        /* --- MEJORA 8: ESTILOS PARA BOTONES DE PLANTILLAS Y COPIAR --- */
+        .copy-button.copied {
+            color: #22c55e; /* text-green-500 */
+        }
+        .template-button {
+            background-color: #4b5563; /* bg-gray-600 */
+            color: #d1d5db; /* text-gray-300 */
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border: none;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .template-button:hover {
+            background-color: #6b7280; /* bg-gray-500 */
+        }
+        /* --- FIN MEJORA 8 --- */
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <!-- Cabecera de la aplicación --><header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                        APLICACIÓN TUTORÍA. V2 
+                        <span id="save-status" class="ml-3 text-lg text-green-400 opacity-0 transition-opacity duration-500">
+                            Guardado ✓
+                        </span>
+                    </h1>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                          <div class="sm:col-span-2">
+                              <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Nombre del tutor/a</label>
+                              <input type="text" id="tutorName" class="form-element" placeholder="Nombre del tutor/a...">
+                          </div>
+                          <div class="sm:col-span-2">
+                              <label for="centerName" class="block text-sm font-medium text-gray-300 mb-1">Centro</label>
+                              <input type="text" id="centerName" class="form-element" placeholder="Centro...">
+                          </div>
+                          <div>
+                              <label for="groupName" class="block text-sm font-medium text-gray-300 mb-1">Grupo</label>
+                              <input type="text" id="groupName" class="form-element" placeholder="Grupo...">
+                          </div>
+                          <div>
+                              <label for="courseYear" class="block text-sm font-medium text-gray-300 mb-1">Curso Académico</label>
+                              <input type="text" id="courseYear" class="form-element" placeholder="Curso académico...">
+                          </div>
+                    </div>
+                </div>
+                <!-- Botonera de acciones --><div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 md:mt-0 self-start md:self-center w-full md:w-auto">
+                    <!-- Fila 1: Añadir/Importar/Exportar --><div class="flex flex-col sm:flex-row gap-2 w-full">
+                         <button id="add-student-button" class="w-full sm:w-auto text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-user-plus mr-2"></i> Añadir Alumno
+                        </button>
+                        <button id="import-button" class="w-full sm:w-auto text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-users-cog mr-2"></i> Importar Lista
+                        </button>
+                        <button id="export-csv-button" class="w-full sm:w-auto text-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-file-excel mr-2"></i> Exportar (CSV)
+                        </button>
+                    </div>
+                     <!-- Fila 2: Guardar/Cargar/Resetear --><div class="flex flex-col sm:flex-row gap-2 w-full">
+                         <button id="save-json-button" class="w-full sm:w-auto text-center bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-save mr-2"></i> Guardar Datos (JSON)
+                        </button>
+                        <button id="load-json-button" class="w-full sm:w-auto text-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-folder-open mr-2"></i> Cargar Datos (JSON)
+                        </button>
+                        <button id="reset-button" class="w-full sm:w-auto text-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
+                            <i class="fas fa-trash-alt mr-2"></i> Resetear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor de la tabla --><main class="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg table-responsive-container p-4">
+            
+            <!-- Campo de búsqueda --><div class="mb-4">
+                <label for="search-input" class="sr-only">Buscar alumno...</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="search" id="search-input" class="form-element pl-10" placeholder="Buscar alumno por nombre...">
+                </div>
+            </div>
+            
+            <table class="w-full text-left">
+                <thead class="border-b border-gray-600 text-orange-400">
+                    <tr>
+                        <th class="p-4">#</th>
+                        <th class="p-4">Nombre del Alumno/a</th>
+                        <th class="p-4">Edad</th>
+                        <th class="p-4">Autorización Salida</th>
+                        <th class="p-4">Nombres de los Padres</th>
+                        <th class="p-4">Móvil de contacto</th>
+                        <th class="p-4">Correo Electrónico</th>
+                        <th class="p-4">Registro de Llamadas</th>
+                        <th class="p-4">Registro de reuniones</th>
+                        <th class="p-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="student-table-body">
+                    <tr>
+                        <td colspan="10" class="p-8 text-center text-gray-400">
+                            Aún no hay alumnado. Usa el botón "Importar Lista" o "Añadir Alumno".
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Modales --><!-- Modal de Importación --><div id="import-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <h2 class="text-2xl font-bold text-blue-400 mb-4">Importar Lista de Alumnado</h2>
+            <p class="text-gray-300 mb-4">Pega tu lista de alumnado aquí (un nombre por línea). Esto reemplazará la lista actual.</p>
+            <textarea id="student-list-input" class="form-element w-full h-48 mb-4" placeholder="Ana García López&#10;Benito Pérez Ruiz&#10;..."></textarea>
+            <div class="flex justify-end space-x-4">
+                <button id="process-import-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Importar Lista</button>
+                <button class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para Resetear --><div id="reset-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <h2 class="text-2xl font-bold text-red-500 mb-4">Confirmar Reseteo</h2>
+            <p class="text-gray-300 mb-6">¿Estás seguro de que quieres borrar toda la información? Esta acción no se puede deshacer.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="confirm-reset-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Sí, Borrar Todo</button>
+                <button class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Alerta --><div id="alert-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <h2 id="alert-title" class="text-2xl font-bold text-orange-400 mb-4">Aviso</h2>
+            <p id="alert-message" class="text-gray-300 mb-6">Este es un mensaje de aviso.</p>
+            <div class="flex justify-end space-x-4">
+                <button class="modal-close bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Añadir Alumno --><div id="add-student-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
+            <h2 class="text-2xl font-bold text-green-400 mb-6">Añadir Nuevo Alumno/a</h2>
+            
+            <form id="add-student-form">
+                <div class="modal-body p-1"> <!-- Contenedor con scroll --><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <!-- Columna 1 --><div>
+                            <label for="new-student-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre Completo (*)</label>
+                            <input type="text" id="new-student-name" class="form-element" placeholder="Nombre y apellidos..." required>
+                        </div>
+                        <div>
+                            <label for="new-student-tutorNombre" class="block text-sm font-medium text-gray-300 mb-1">Nombres de los Padres/Tutores</label>
+                            <input type="text" id="new-student-tutorNombre" class="form-element" placeholder="Padre/Madre/Tutor...">
+                        </div>
+                        <div>
+                            <label for="new-student-edad" class="block text-sm font-medium text-gray-300 mb-1">Edad</label>
+                            <select id="new-student-edad" class="form-element form-element-select">
+                                <option value="">Seleccionar...</option>
+                                <option value="Menor de edad">Menor de edad</option>
+                                <option value="Mayor de edad">Mayor de edad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="new-student-tutorMovil" class="block text-sm font-medium text-gray-300 mb-1">Móvil de contacto</label>
+                            <input type="tel" id="new-student-tutorMovil" class="form-element" placeholder="600 000 000...">
+                        </div>
+                        <div>
+                            <label for="new-student-autorizacion" class="block text-sm font-medium text-gray-300 mb-1">Autorización Salida</labe>
+                            <select id="new-student-autorizacion" class="form-element form-element-select">
+                                <option value="">Seleccionar...</option>
+                                <option value="Sí">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="new-student-email" class="block text-sm font-medium text-gray-300 mb-1">Correo Electrónico</label>
+                            <input type="email" id="new-student-email" class="form-element" placeholder="email@ejemplo.com...">
+                        </div>
+
+                        <!-- Textareas en ancho completo --><div class="md:col-span-2">
+                            <label for="new-student-llamadas" class="block text-sm font-medium text-gray-300 mb-1">Registro de Llamadas</ci>
+                            <textarea id="new-student-llamadas" class="form-element h-24" placeholder="Anotaciones sobre llamadas..."></textarea>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="new-student-visitas" class="block text-sm font-medium text-gray-300 mb-1">Registro de Reuniones</label>
+                            <textarea id="new-student-visitas" class="form-element h-24" placeholder="Anotaciones sobre reuniones..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="flex justify-end space-x-4 mt-6 pt-4 border-t border-gray-700">
+                <button id="save-new-student-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Guardar Alumno</button>
+                <button class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para Eliminar Alumno --><div id="delete-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <h2 class="text-2xl font-bold text-red-500 mb-4">Confirmar Eliminación</h2>
+            <p class="text-gray-300 mb-6">¿Estás seguro de que quieres <strong class="text-red-400">eliminar permanentemente</strong> a este alumno y todos sus datos? Esta acción no se puede deshacer.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="confirm-delete-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Sí, Eliminar</button>
+                <button id="cancel-delete-button" class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- MEJORA 7: HTML DEL MODAL DE FICHA RÁPIDA --- -->
+    <div id="quick-view-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
+            <h2 id="quick-view-title" class="text-2xl font-bold text-orange-400 mb-6">Ficha Rápida de [Alumno]</h2>
+            
+            <div class="modal-body p-1 space-y-4">
+                <!-- Datos Principales -->
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                    <div>
+                        <dt class="font-medium text-gray-400">Edad</dt>
+                        <dd id="quick-view-edad" class="text-lg text-white"></dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-400">Autorización Salida</dt>
+                        <dd id="quick-view-autorizacion" class="text-lg text-white"></dd>
+                    </div>
+                    <div class="md:col-span-2">
+                        <dt class="font-medium text-gray-400">Nombres de los Padres/Tutores</dt>
+                        <dd id="quick-view-tutorNombre" class="text-lg text-white"></dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-400">Móvil de contacto</dt>
+                        <dd id="quick-view-tutorMovil" class="text-lg text-white"></dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-400">Correo Electrónico</dt>
+                        <dd id="quick-view-email" class="text-lg text-white"></dd>
+                    </div>
+                </dl>
+
+                <!-- Registros -->
+                <div class="space-y-4 pt-4 border-t border-gray-700">
+                    <div>
+                        <h3 class="font-medium text-gray-400 mb-2">Registro de Llamadas</h3>
+                        <div id="quick-view-llamadas" class="quick-view-log"></div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-400 mb-2">Registro de Reuniones</h3>
+                        <div id="quick-view-visitas" class="quick-view-log"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-4 mt-6 pt-4 border-t border-gray-700">
+                <button class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <!-- --- FIN MEJORA 7 --- -->
+
+
+    <!-- Input de fichero oculto para cargar JSON --><input type="file" id="json-file-input" class="hidden" accept=".json">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONSTANTES Y REFERENCIAS ---
+            const STORAGE_KEY = 'tutorStudentDataApp';
+            const courseYearInput = document.getElementById('courseYear');
+            const tutorNameInput = document.getElementById('tutorName');
+            const groupNameInput = document.getElementById('groupName');
+            const centerNameInput = document.getElementById('centerName');
+            const studentTableBody = document.getElementById('student-table-body');
+
+            // --- MEJORA 8: CONSTANTES DE PLANTILLAS ---
+            const LOG_TEMPLATES = [
+                "Llamada (ausencia)", 
+                "Email enviado:", 
+                "Reunión programada:", 
+                "Falta injustificada",
+                "Recordatorio enviado:",
+                "No contesta:",
+                "Se informa de:"
+            ];
+            
+            // --- Modales ---
+            const importModal = document.getElementById('import-modal');
+            const resetModal = document.getElementById('reset-modal');
+            const alertModal = document.getElementById('alert-modal');
+            const alertTitle = document.getElementById('alert-title');
+            const alertMessage = document.getElementById('alert-message');
+            const addStudentModal = document.getElementById('add-student-modal');
+            const deleteModal = document.getElementById('delete-modal');
+            // --- MEJORA 7: CONSTANTES DE FICHA RÁPIDA ---
+            const quickViewModal = document.getElementById('quick-view-modal');
+            const quickViewTitle = document.getElementById('quick-view-title');
+            const quickViewEdad = document.getElementById('quick-view-edad');
+            const quickViewAutorizacion = document.getElementById('quick-view-autorizacion');
+            const quickViewTutorNombre = document.getElementById('quick-view-tutorNombre');
+            const quickViewTutorMovil = document.getElementById('quick-view-tutorMovil');
+            const quickViewEmail = document.getElementById('quick-view-email');
+            const quickViewLlamadas = document.getElementById('quick-view-llamadas');
+            const quickViewVisitas = document.getElementById('quick-view-visitas');
+            
+            // --- Botones ---
+            const importButton = document.getElementById('import-button');
+            const processImportButton = document.getElementById('process-import-button');
+            const studentListInput = document.getElementById('student-list-input');
+            const resetButton = document.getElementById('reset-button');
+            const confirmResetButton = document.getElementById('confirm-reset-button');
+            const exportCsvButton = document.getElementById('export-csv-button');
+            const saveJsonButton = document.getElementById('save-json-button');
+            const loadJsonButton = document.getElementById('load-json-button');
+            const jsonFileInput = document.getElementById('json-file-input');
+            const addStudentButton = document.getElementById('add-student-button');
+            // Corregido: saveNewStudentButton ahora apunta al botón correcto
+            const saveNewStudentButton = document.getElementById('save-new-student-button');
+            const addStudentForm = document.getElementById('add-student-form');
+            const confirmDeleteButton = document.getElementById('confirm-delete-button');
+            const cancelDeleteButton = document.getElementById('cancel-delete-button');
+            const searchInput = document.getElementById('search-input'); // Para la Mejora 1
+
+            // --- DATOS GLOBALES ---
+            let appData = {
+                courseYear: '',
+                tutorName: '',
+                groupName: '',
+                centerName: '',
+                students: {}
+            };
+            let studentIdToDelete = null; 
+            let saveStatusTimer = null; 
+
+            // --- LÓGICA DE GUARDADO/CARGA DE DATOS (localStorage) ---
+            
+            function saveData() {
+                appData.courseYear = courseYearInput.value;
+                appData.tutorName = tutorNameInput.value;
+                appData.groupName = groupNameInput.value;
+                appData.centerName = centerNameInput.value;
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+
+                const saveStatus = document.getElementById('save-status');
+                if (saveStatus) {
+                    clearTimeout(saveStatusTimer); 
+                    saveStatus.classList.remove('opacity-0'); 
+                    saveStatusTimer = setTimeout(() => {
+                        saveStatus.classList.add('opacity-0');
+                    }, 1500);
+                }
+            }
+
+            function updateStudentField(studentId, field, value) {
+                if (appData.students[studentId]) {
+                    appData.students[studentId][field] = value;
+                    saveData(); 
+                }
+            }
+
+            function loadData() {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    try {
+                        appData = JSON.parse(savedData);
+                        if (!appData.students) appData.students = {};
+                    } catch (e) {
+                        console.error("Error al parsear localStorage, reseteando datos.", e);
+                        appData = { courseYear: '', tutorName: '', groupName: '', centerName: '', students: {} };
+                    }
+                }
+
+                courseYearInput.value = appData.courseYear || '';
+                tutorNameInput.value = appData.tutorName || '';
+                groupNameInput.value = appData.groupName || '';
+                centerNameInput.value = appData.centerName || '';
+                renderStudentTable();
+            }
+
+            // --- LÓGICA DE AVISOS ---
+            function showAlert(message, title = 'Aviso', type = 'info') {
+                alertTitle.textContent = title;
+                alertMessage.textContent = message;
+                alertTitle.classList.remove('text-orange-400', 'text-red-500', 'text-green-500');
+                if (type === 'error') {
+                    alertTitle.classList.add('text-red-500');
+                } else if (type === 'success') {
+                    alertTitle.classList.add('text-green-500');
+                } else {
+                    alertTitle.classList.add('text-orange-400');
+                }
+                alertModal.classList.remove('hidden');
+                alertModal.classList.add('flex');
+            }
+
+            // --- RENDERIZADO DE LA TABLA ---
+            function renderStudentTable() {
+                studentTableBody.innerHTML = '';
+                const studentIds = appData.students ? Object.keys(appData.students) : [];
+
+                if (studentIds.length === 0) {
+                    studentTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="10" class="p-8 text-center text-gray-400">
+                                Aún no hay alumnado. Usa el botón "Importar Lista" o "Añadir Alumno".
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                const sortedStudentIds = studentIds.sort((a, b) => {
+                    const studentA = appData.students[a];
+                    const studentB = appData.students[b];
+                    const nameA = studentA?.name || '';
+                    const nameB = studentB?.name || '';
+                    return nameA.localeCompare(nameB); 
+                });
+                
+                sortedStudentIds.forEach((studentId, index) => {
+                    const studentData = appData.students[studentId];
+                    if (!studentData || !studentData.name) {
+                         console.warn(`Datos inválidos para el studentId: ${studentId}`);
+                        return;
+                    }
+                    const newRow = createStudentRow(index + 1, studentId, studentData.name, studentData);
+                    studentTableBody.appendChild(newRow);
+                });
+
+                const currentSearchText = document.getElementById('search-input').value;
+                if (currentSearchText) {
+                    const event = new Event('input');
+                    document.getElementById('search-input').dispatchEvent(event);
+                }
+            }
+
+            function createStudentRow(studentNumber, studentId, name, studentData = {}) {
+                const tr = document.createElement('tr');
+                tr.dataset.studentId = studentId;
+                const status = studentData.status || 'active';
+                tr.dataset.status = status;
+                tr.className = 'border-b border-gray-700 hover:bg-gray-700/50 transition-colors';
+                if (status === 'inactive') {
+                    tr.classList.add('student-inactive');
+                }
+                if (studentData.edad === 'Menor de edad') {
+                    tr.classList.add('student-underage');
+                }
+
+                const createCell = (content) => {
+                    const td = document.createElement('td');
+                    td.className = 'p-2';
+                    td.appendChild(content);
+                    return td;
+                };
+
+                // --- MEJORA 7 & 8: createFormField MODIFICADO ---
+                // Ahora crea botones de acción (tel/mail) y de copiar
+                const createFormField = (tag, type, field, value) => {
+                    // 1. Crear el elemento principal (input o select)
+                    const el = document.createElement(tag);
+                    el.className = 'form-element';
+                    el.dataset.field = field;
+                    el.value = value || '';
+                    if (tag === 'input') el.type = type;
+                    
+                    if (tag === 'input') {
+                        switch (field) {
+                            case 'tutorNombre': el.placeholder = 'Nombres de los padres...'; break;
+                            case 'tutorMovil': el.placeholder = 'Móvil de comunicación...'; break;
+                            case 'email': el.placeholder = 'Email de contacto...'; break;
+                            default: el.placeholder = '...';
+                        }
+                    }
+
+                    if (tag === 'select') {
+                        let options = [];
+                        if (field === 'edad') options = ['', 'Menor de edad', 'Mayor de edad'];
+                        if (field === 'autorizacion') options = ['', 'Sí', 'No'];
+                        el.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                        el.value = value || ''; 
+                    }
+                    
+                    const inputListener = (e) => {
+                        const newValue = e.target.value;
+                        updateStudentField(studentId, field, newValue);
+
+                        if (field === 'edad') {
+                            const row = el.closest('tr[data-student-id]');
+                            if (row) {
+                                if (newValue === 'Menor de edad') {
+                                    row.classList.add('student-underage');
+                                } else {
+                                    row.classList.remove('student-underage');
+                                }
+                            }
+                        }
+                    };
+
+                    // 3. Comprobar si es un campo de acción (móvil, email, nombre)
+                    if (field === 'tutorMovil' || field === 'email' || field === 'tutorNombre') {
+                        const container = document.createElement('div');
+                        container.className = 'flex items-center gap-2 w-full';
+                        
+                        el.classList.add('flex-grow'); // Input llena el espacio
+
+                        // Botón de Copiar
+                        const copyButton = document.createElement('button');
+                        copyButton.className = 'copy-button flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-2 rounded-md';
+                        copyButton.type = "button";
+                        copyButton.innerHTML = '<i class="fas fa-clipboard fa-lg"></i>';
+                        copyButton.title = 'Copiar al portapapeles';
+                        copyButton.addEventListener('click', () => copyToClipboard(el.value, copyButton));
+
+                        container.appendChild(el); // Input primero
+
+                        // Botón de Acción (Teléfono o Email)
+                        if (field === 'tutorMovil' || field === 'email') {
+                            const link = document.createElement('a');
+                            link.className = 'flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-2 rounded-md';
+                            link.target = '_blank';
+
+                            if (field === 'tutorMovil') {
+                                link.href = `tel:${value || ''}`;
+                                link.title = "Llamar al móvil";
+                                link.innerHTML = '<i class="fas fa-phone fa-lg"></i>';
+                            } else { // email
+                                link.href = `mailto:${value || ''}`;
+                                link.title = "Enviar email";
+                                link.innerHTML = '<i class="fas fa-envelope fa-lg"></i>';
+                            }
+
+                            el.addEventListener('input', (e) => {
+                                inputListener(e); // Lógica de guardado
+                                // Actualizar el href del botón de acción
+                                const newValue = e.target.value;
+                                if (field === 'tutorMovil') {
+                                    link.href = `tel:${newValue}`;
+                                } else {
+                                    link.href = `mailto:${newValue}`;
+                                }
+                            });
+                            container.appendChild(link); // Añadir link
+                        } else {
+                             el.addEventListener('input', inputListener); // Listener simple para tutorNombre
+                        }
+
+                        container.appendChild(copyButton); // Añadir botón de copiar al final
+                        return container; // Devuelve el contenedor
+                    } else {
+                        // Para todos los demás campos (selects)
+                        el.addEventListener('input', inputListener); // Solo adjunta el listener
+                        return el; // Devuelve solo el input/select
+                    }
+                };
+                // --- FIN MEJORA 7 & 8 ---
+                
+                // 0. Número
+                const tdNum = document.createElement('td');
+                tdNum.className = 'p-4 text-center text-gray-400';
+                tdNum.textContent = studentNumber;
+                tr.appendChild(tdNum);
+
+                // 1. Nombre
+                const tdName = document.createElement('td');
+                tdName.className = 'p-4 font-medium text-white';
+                tdName.textContent = name;
+                tdName.dataset.field = "name";
+
+                tdName.title = "Hacer clic para editar el nombre";
+                tdName.classList.add('cursor-pointer', 'hover:bg-gray-700/50', 'rounded-md');
+                tdName.addEventListener('click', () => {
+                    const currentName = appData.students[studentId].name;
+                    const newName = prompt('Editar nombre del alumno:', currentName); 
+                    
+                    if (newName && newName.trim() !== '' && newName.trim() !== currentName) {
+                        const newNameTrimmed = newName.trim();
+                        const existingNames = Object.values(appData.students)
+                            .filter(s => s.name.toLowerCase() !== currentName.toLowerCase())
+                            .map(s => s.name.toLowerCase());
+
+                        if (existingNames.includes(newNameTrimmed.toLowerCase())) {
+                            alert('Error: Ya existe OTRO alumno con este nombre.');
+                            return;
+                        }
+                        
+                        updateStudentField(studentId, 'name', newNameTrimmed);
+                        tdName.textContent = newNameTrimmed;
+                    }
+                });
+                tr.appendChild(tdName);
+
+                // 2-6. Campos de formulario
+                tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad)));
+                tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion)));
+                tr.appendChild(createCell(createFormField('input', 'text', 'tutorNombre', studentData.tutorNombre)));
+                tr.appendChild(createCell(createFormField('input', 'tel', 'tutorMovil', studentData.tutorMovil)));
+                tr.appendChild(createCell(createFormField('input', 'email', 'email', studentData.email)));
+
+                // --- MEJORA 8: createTimestampTextarea MODIFICADO ---
+                // Ahora añade botones de plantilla
+                const createTimestampTextarea = (field, value) => {
+                    const td = document.createElement('td');
+                    td.className = 'p-2'; // Celda de la tabla
+                    
+                    // Contenedor para textarea y botón de timestamp
+                    const container = document.createElement('div');
+                    container.className = 'textarea-container';
+                    const textarea = document.createElement('textarea');
+                    textarea.className = 'form-element h-24';
+                    textarea.dataset.field = field;
+                    textarea.placeholder = 'Añadir fecha con el botón...';
+                    textarea.value = value || '';
+                    
+                    textarea.addEventListener('input', (e) => {
+                        updateStudentField(studentId, field, e.target.value);
+                    });
+
+                    const button = document.createElement('button');
+                    button.className = 'add-timestamp-button';
+                    button.type = "button";
+                    button.title = 'Añadir Fecha y Hora Actual';
+                    button.innerHTML = '<i class="fas fa-clock"></i> Añadir Fecha';
+                    
+                    button.addEventListener('click', () => addTimestamp(textarea, studentId, field));
+
+                    container.appendChild(textarea);
+                    container.appendChild(button);
+                    td.appendChild(container); // Añadir el textarea a la celda
+
+                    // Contenedor para los botones de plantilla
+                    const templatesContainer = document.createElement('div');
+                    templatesContainer.className = 'mt-1 flex flex-wrap gap-1';
+
+                    LOG_TEMPLATES.forEach(templateText => {
+                        const templateButton = document.createElement('button');
+                        templateButton.type = "button";
+                        templateButton.className = 'template-button';
+                        templateButton.textContent = templateText;
+                        templateButton.title = `Añadir plantilla: "${templateText}"`;
+                        
+                        templateButton.addEventListener('click', () => {
+                            const timestamp = getTimestamp();
+                            const newLine = textarea.value.trim() === '' ? '' : '\n';
+                            const newEntry = `${newLine}${timestamp}${templateText} `; // Añade espacio al final
+                            
+                            textarea.value += newEntry;
+                            textarea.focus();
+                            // Mover el cursor al final
+                            textarea.scrollTop = textarea.scrollHeight; 
+                            
+                            // Guardar el cambio
+                            updateStudentField(studentId, field, textarea.value);
+                        });
+                        
+                        templatesContainer.appendChild(templateButton);
+                    });
+
+                    td.appendChild(templatesContainer); // Añadir plantillas a la celda
+                    return td;
+                };
+                // --- FIN MEJORA 8 ---
+
+                // 7. Registro de Llamadas
+                tr.appendChild(createTimestampTextarea('llamadas', studentData.llamadas));
+                // 8. Registro de Visitas
+                tr.appendChild(createTimestampTextarea('visitas', studentData.visitas));
+                
+                // 9. Celda de Acciones
+                const tdActions = document.createElement('td');
+                tdActions.className = 'p-2 text-center whitespace-nowrap'; // Añadido nowrap
+
+                // --- MEJORA 7: BOTÓN DE FICHA RÁPIDA (OJO) ---
+                const quickViewButton = document.createElement('button');
+                quickViewButton.className = 'text-gray-400 hover:text-blue-400 transition-colors px-2 py-1 rounded-md';
+                quickViewButton.type = "button";
+                quickViewButton.innerHTML = '<i class="fas fa-eye fa-lg"></i>';
+                quickViewButton.title = 'Ver ficha rápida del alumno';
+                quickViewButton.addEventListener('click', () => openQuickView(studentId));
+                tdActions.appendChild(quickViewButton);
+                // --- FIN MEJORA 7 ---
+
+
+                // Botón de Archivar
+                const archiveButton = document.createElement('button');
+                archiveButton.className = 'text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded-md ml-2';
+                archiveButton.type = "button";
+                if (status === 'active') {
+                    archiveButton.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
+                    archiveButton.title = 'Archivar alumno';
+                } else {
+                    archiveButton.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
+                    archiveButton.title = 'Reactivar alumno';
+                }
+                archiveButton.addEventListener('click', () => toggleStudentStatus(tr));
+                tdActions.appendChild(archiveButton);
+
+                // Botón de Eliminar
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md ml-2';
+                deleteButton.type = "button";
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt fa-lg"></i>';
+                deleteButton.title = 'Eliminar alumno permanentemente';
+                deleteButton.addEventListener('click', () => openDeleteModal(studentId));
+                tdActions.appendChild(deleteButton);
+
+                tr.appendChild(tdActions);
+
+                return tr;
+            }
+
+            // --- MEJORA 7: FUNCIÓN PARA ABRIR LA FICHA RÁPIDA ---
+            function openQuickView(studentId) {
+                const student = appData.students[studentId];
+                if (!student) return;
+
+                // Rellenar el modal
+                quickViewTitle.textContent = `Ficha Rápida: ${student.name || '(Sin nombre)'}`;
+                quickViewEdad.textContent = student.edad || '---';
+                quickViewAutorizacion.textContent = student.autorizacion || '---';
+                quickViewTutorNombre.textContent = student.tutorNombre || '---';
+                quickViewTutorMovil.textContent = student.tutorMovil || '---';
+                quickViewEmail.textContent = student.email || '---';
+                quickViewLlamadas.textContent = student.llamadas || ''; // El CSS se encarga del placeholder
+                quickViewVisitas.textContent = student.visitas || '';
+
+                // Mostrar el modal
+                quickViewModal.classList.remove('hidden');
+                quickViewModal.classList.add('flex');
+            }
+            // --- FIN MEJORA 7 ---
+
+            // --- MEJORA 8: FUNCIONES HELPER (TIMESTAMP Y COPIAR) ---
+            function getTimestamp() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes} - `;
+            }
+
+            function copyToClipboard(text, buttonElement) {
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = text;
+                tempTextarea.style.position = 'absolute';
+                tempTextarea.style.left = '-9999px';
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                try {
+                    document.execCommand('copy');
+                    
+                    // Feedback Visual
+                    if (buttonElement) {
+                        const originalIcon = buttonElement.innerHTML;
+                        buttonElement.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; // Icono más grande
+                        buttonElement.classList.add('copied');
+                        buttonElement.disabled = true;
+                        setTimeout(() => {
+                            buttonElement.innerHTML = originalIcon;
+                            buttonElement.classList.remove('copied');
+                            buttonElement.disabled = false;
+                        }, 1500);
+                    }
+                } catch (err) {
+                    console.error('Fallo al copiar: ', err);
+                    showAlert('No se pudo copiar el texto.', 'Error', 'error');
+                }
+                document.body.removeChild(tempTextarea);
+            }
+            // --- FIN MEJORA 8 ---
+
+
+            function toggleStudentStatus(rowElement) {
+                const studentId = rowElement.dataset.studentId;
+                const currentStatus = rowElement.dataset.status;
+                const newStatus = (currentStatus === 'active') ? 'inactive' : 'active';
+                rowElement.dataset.status = newStatus;
+                
+                const button = rowElement.querySelector('button[title*="Archivar"], button[title*="Reactivar"]');
+                if (newStatus === 'inactive') {
+                    rowElement.classList.add('student-inactive');
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
+                        button.title = 'Reactivar alumno';
+                    }
+                } else {
+                    rowElement.classList.remove('student-inactive');
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
+                        button.title = 'Archivar alumno';
+                    }
+                }
+                
+                if (appData.students[studentId]) {
+                    appData.students[studentId].status = newStatus;
+                    saveData();
+                }
+            }
+            
+            function openDeleteModal(studentId) {
+                studentIdToDelete = studentId;
+                deleteModal.classList.remove('hidden');
+                deleteModal.classList.add('flex');
+            }
+
+            function deleteStudent() {
+                if (studentIdToDelete) {
+                    delete appData.students[studentIdToDelete]; 
+                    studentIdToDelete = null;
+                    renderStudentTable(); 
+                    saveData(); 
+                }
+                deleteModal.classList.add('hidden');
+                deleteModal.classList.remove('flex');
+            }
+
+            // --- MEJORA 8: addTimestamp REFACTORIZADO ---
+            function addTimestamp(textarea, studentId, field) {
+                const timestamp = getTimestamp(); // Usa la nueva función helper
+                
+                if (textarea.value.trim() !== '') {
+                    textarea.value += '\n' + timestamp;
+                } else {
+                    textarea.value = timestamp;
+                }
+                textarea.focus();
+                textarea.scrollTop = textarea.scrollHeight; 
+                
+                if (studentId && field) {
+                    updateStudentField(studentId, field, textarea.value);
+                }
+            }
+            // --- FIN MEJORA 8 ---
+
+
+            // --- LÓGICA DE IMPORTACIÓN (Alumnado) ---
+            importButton.addEventListener('click', () => {
+                studentListInput.value = ''; 
+                importModal.classList.remove('hidden');
+                importModal.classList.add('flex');
+            });
+
+            processImportButton.addEventListener('click', () => {
+                const names = studentListInput.value.split('\n')
+                    .map(name => name.trim())
+                    .filter(name => name.length > 0);
+                
+                if (names.length === 0) {
+                    showAlert('No se han introducido nombres.', 'Error de Importación', 'error');
+                    return;
+                }
+                appData.students = {}; 
+                names.forEach(name => {
+                    const studentId = crypto.randomUUID();
+                    appData.students[studentId] = { name: name, status: 'active' }; 
+                });
+                renderStudentTable(); 
+                saveData(); 
+                importModal.classList.add('hidden');
+                importModal.classList.remove('flex');
+                showAlert(`${names.length} alumnos importados correctamente.`, 'Importación Completa', 'success');
+            });
+
+            // --- LÓGICA DE EXPORTAR A CSV ---
+            exportCsvButton.addEventListener('click', () => {
+                const headers = ["#", "Nombre del Alumno/a", "Edad", "Autorización Salida", "Nombres de los Padres", "Móvil de contacto", "Correo Electrónico", "Registro de Llamadas", "Registro de reuniones", "Estado"];
+                const escapeCsvCell = (cell) => {
+                    let cellString = String(cell ?? '');
+                    if (cellString.search(/("|,|\n|;)/g) >= 0) {
+                        cellString = `"${cellString.replace(/"/g, '""')}"`;
+                    }
+                    return cellString;
+                };
+                const headerInfo = [
+                    `Centro:;${escapeCsvCell(appData.centerName)}`,
+                    `Grupo:;${escapeCsvCell(appData.groupName)}`,
+                    `Tutor/a:;${escapeCsvCell(appData.tutorName)}`,
+                    `Año del curso:;${escapeCsvCell(appData.courseYear)}`,
+                    '' 
+                ].join('\n');
+                
+                const sortedStudentIds = Object.keys(appData.students).sort((a, b) => {
+                    return (appData.students[a]?.name || '').localeCompare(appData.students[b]?.name || '');
+                });
+
+                const rows = sortedStudentIds.map((studentId, index) => {
+                    const student = appData.students[studentId];
+                    return [
+                        index + 1,
+                        student.name,
+                        student.edad,
+                        student.autorizacion,
+                        student.tutorNombre,
+                        student.tutorMovil,
+                        student.email,
+                        student.llamadas,
+                        student.visitas,
+                        student.status || 'active'
+                    ].map(escapeCsvCell).join(';');
+                });
+                
+                const csvContent = [headerInfo, headers.join(';'), ...rows].join('\n'); 
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                const courseName = appData.courseYear.replace(/\s/g, '_') || 'datos';
+                link.download = `registro_tutoría_${courseName}.csv`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+
+            // --- LÓGICA DE GUARDAR/CARGAR DATOS (JSON) ---
+            saveJsonButton.addEventListener('click', () => {
+                const dataStr = JSON.stringify(appData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                const groupName = appData.groupName.replace(/\s/g, '_') || 'tutoria';
+                link.download = `datos_tutoria_${groupName}.json`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+
+            loadJsonButton.addEventListener('click', () => {
+                jsonFileInput.click();
+            });
+
+            jsonFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const parsedData = JSON.parse(e.target.result);
+                        if (parsedData && typeof parsedData.students === 'object' && parsedData.hasOwnProperty('tutorName')) {
+                            appData = parsedData; 
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                            loadData(); 
+                            showAlert('Datos cargados y restaurados con éxito.', 'Carga Completa', 'success');
+                        } else {
+                            showAlert('El fichero no tiene la estructura de datos esperada.', 'Error de Fichero', 'error');
+                        }
+                    } catch (err) {
+                        showAlert('Error al leer el fichero. Asegúrate de que es un .json válido.', 'Error de Carga', 'error');
+                        console.error(err);
+                    }
+                };
+                reader.onerror = () => {
+                    showAlert('No se pudo leer el fichero.', 'Error de Lectura', 'error');
+                };
+                reader.readAsText(file);
+                event.target.value = null;
+            });
+
+            // --- LÓGICA PARA MODALES Y RESETEO ---
+            resetButton.addEventListener('click', () => {
+                resetModal.classList.remove('hidden');
+                resetModal.classList.add('flex');
+            });
+
+            confirmResetButton.addEventListener('click', () => {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            });
+
+            document.querySelectorAll('.modal-close').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.target.closest('.modal-backdrop').classList.add('hidden');
+                    e.target.closest('.modal-backdrop').classList.remove('flex');
+                });
+            });
+
+            // --- INICIALIZACIÓN Y LISTENERS ---
+            // Guardado de cabecera
+            courseYearInput.addEventListener('input', saveData);
+            tutorNameInput.addEventListener('input', saveData);
+            groupNameInput.addEventListener('input', saveData);
+            centerNameInput.addEventListener('input', saveData);
+
+            addStudentButton.addEventListener('click', () => {
+                addStudentForm.reset(); 
+                addStudentModal.classList.remove('hidden');
+                addStudentModal.classList.add('flex');
+            });
+
+            // --- CORRECCIÓN DE BUG ---
+            // El listener para 'save-new-student-button' estaba duplicado y uno era incorrecto.
+            // Se elimina la variable errónea 'saveNewStudentButton' y el listener erróneo.
+            // Este es el ÚNICO listener correcto para ese botón.
+            document.getElementById('save-new-student-button').addEventListener('click', () => {
+                const studentNameInput = document.getElementById('new-student-name');
+                const studentName = studentNameInput.value.trim();
+                
+                if (studentName.length === 0) {
+                    showAlert('El nombre del alumno no puede estar vacío.', 'Error de Validación', 'error');
+                    studentNameInput.focus();
+                    return;
+                }
+
+                const existingNames = Object.values(appData.students).map(s => s.name.toLowerCase());
+                if (existingNames.includes(studentName.toLowerCase())) {
+                    showAlert('Ya existe un alumno con este nombre.', 'Error de Validación', 'error');
+                    studentNameInput.focus();
+                    return;
+                }
+
+                const studentId = crypto.randomUUID();
+                const newStudentData = {
+                    name: studentName,
+                    edad: document.getElementById('new-student-edad').value,
+                    autorizacion: document.getElementById('new-student-autorizacion').value,
+                    tutorNombre: document.getElementById('new-student-tutorNombre').value,
+                    tutorMovil: document.getElementById('new-student-tutorMovil').value,
+                    email: document.getElementById('new-student-email').value,
+                    llamadas: document.getElementById('new-student-llamadas').value,
+                    visitas: document.getElementById('new-student-visitas').value,
+                    status: 'active'
+                };
+
+                appData.students[studentId] = newStudentData; 
+                renderStudentTable(); 
+                saveData(); 
+                
+                addStudentModal.classList.add('hidden');
+                addStudentModal.classList.remove('flex');
+                showAlert('Alumno añadido correctamente.', 'Éxito', 'success');
+            });
+            // --- FIN CORRECCIÓN DE BUG ---
+            
+            confirmDeleteButton.addEventListener('click', deleteStudent);
+            cancelDeleteButton.addEventListener('click', () => {
+                studentIdToDelete = null;
+                deleteModal.classList.add('hidden');
+                deleteModal.classList.remove('flex');
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const searchText = e.target.value.toLowerCase().trim();
+                const rows = studentTableBody.querySelectorAll('tr[data-student-id]'); 
+                let resultsFound = false;
+
+                rows.forEach(row => {
+                    const studentId = row.dataset.studentId;
+                    const studentName = appData.students[studentId]?.name.toLowerCase();
+                    
+                    if (studentName && studentName.includes(searchText)) {
+                        row.style.display = ''; 
+                        resultsFound = true;
+                    } else {
+                        row.style.display = 'none'; 
+                    }
+                });
+
+                let noResultsRow = studentTableBody.querySelector('.no-search-results');
+                if (!resultsFound && searchText.length > 0) {
+                    if (!noResultsRow) {
+                        noResultsRow = document.createElement('tr');
+                        noResultsRow.className = 'no-search-results';
+                        noResultsRow.innerHTML = `<td colspan="10" class="p-8 text-center text-gray-400">No se encontraron alumnos con el nombre "${searchText}".</td>`; 
+                        studentTableBody.appendChild(noResultsRow);
+                    } else {
+                        noResultsRow.querySelector('td').textContent = `No se encontraron alumnos con el nombre "${searchText}".`;
+                        noResultsRow.style.display = '';
+                    }
+                } else if (noResultsRow) {
+                    noResultsRow.style.display = 'none'; 
+                }
+            });
+
+            // Carga inicial de datos
+            loadData();
+        });
+    </script>
+</body>
+</html>
+
