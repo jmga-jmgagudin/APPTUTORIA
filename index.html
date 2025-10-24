@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APLICACIÓN TUTORÍA</title>
+    <!-- Título editado por el usuario --><title>APLICACIÓN TUTORÍA</title>
     
     <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     
@@ -57,7 +57,7 @@
         
         /* Ajustes de la tabla */
         .table-responsive-container { overflow-x: auto; }
-        table { min-width: 1650px; } /* Vuelve al ancho original */
+        table { min-width: 1650px; } 
         th { white-space: normal; vertical-align: top; }
         td { white-space: nowrap; }
         td .form-element { min-width: 150px; }
@@ -151,8 +151,8 @@
         <!-- Cabecera de la aplicación --><header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                        APLICACIÓN TUTORÍA. V2 
+                    <!-- Título editado por el usuario --><h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                        APLICACIÓN TUTORÍA V3
                         <span id="save-status" class="ml-3 text-lg text-green-400 opacity-0 transition-opacity duration-500">
                             Guardado ✓
                         </span>
@@ -396,6 +396,10 @@
 
     <!-- Input de fichero oculto para cargar JSON --><input type="file" id="json-file-input" class="hidden" accept=".json">
 
+    <!-- --- MEJORA 8: Área de portapapeles oculta --- -->
+    <textarea id="clipboard-helper" class="absolute -left-full -top-full"></textarea>
+    <!-- --- FIN MEJORA 8 --- -->
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONSTANTES Y REFERENCIAS ---
@@ -405,6 +409,7 @@
             const groupNameInput = document.getElementById('groupName');
             const centerNameInput = document.getElementById('centerName');
             const studentTableBody = document.getElementById('student-table-body');
+            const clipboardHelper = document.getElementById('clipboard-helper'); // MEJORA 8
 
             // --- MEJORA 8: CONSTANTES DE PLANTILLAS ---
             const LOG_TEMPLATES = [
@@ -447,7 +452,6 @@
             const loadJsonButton = document.getElementById('load-json-button');
             const jsonFileInput = document.getElementById('json-file-input');
             const addStudentButton = document.getElementById('add-student-button');
-            // Corregido: saveNewStudentButton ahora apunta al botón correcto
             const saveNewStudentButton = document.getElementById('save-new-student-button');
             const addStudentForm = document.getElementById('add-student-form');
             const confirmDeleteButton = document.getElementById('confirm-delete-button');
@@ -588,9 +592,7 @@
                 };
 
                 // --- MEJORA 7 & 8: createFormField MODIFICADO ---
-                // Ahora crea botones de acción (tel/mail) y de copiar
                 const createFormField = (tag, type, field, value) => {
-                    // 1. Crear el elemento principal (input o select)
                     const el = document.createElement(tag);
                     el.className = 'form-element';
                     el.dataset.field = field;
@@ -630,7 +632,6 @@
                         }
                     };
 
-                    // 3. Comprobar si es un campo de acción (móvil, email, nombre)
                     if (field === 'tutorMovil' || field === 'email' || field === 'tutorNombre') {
                         const container = document.createElement('div');
                         container.className = 'flex items-center gap-2 w-full';
@@ -694,15 +695,22 @@
                 tdNum.textContent = studentNumber;
                 tr.appendChild(tdNum);
 
-                // 1. Nombre
+                // --- MEJORA 9: CELDA DE NOMBRE CON BOTÓN DE ELIMINAR ---
                 const tdName = document.createElement('td');
-                tdName.className = 'p-4 font-medium text-white';
-                tdName.textContent = name;
-                tdName.dataset.field = "name";
+                tdName.className = 'p-2 font-medium text-white'; // p-2 para alinear
+                
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'flex items-center justify-between gap-2'; // Contenedor Flex
 
-                tdName.title = "Hacer clic para editar el nombre";
-                tdName.classList.add('cursor-pointer', 'hover:bg-gray-700/50', 'rounded-md');
-                tdName.addEventListener('click', () => {
+                // Span para el nombre (editable)
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = name;
+                nameSpan.dataset.field = "name";
+                nameSpan.className = 'flex-grow p-2 rounded-md min-w-[150px]'; // p-2 para hitbox, min-w para que no se colapse
+                nameSpan.title = "Hacer clic para editar el nombre";
+                nameSpan.classList.add('cursor-pointer', 'hover:bg-gray-700/50');
+                
+                nameSpan.addEventListener('click', () => {
                     const currentName = appData.students[studentId].name;
                     const newName = prompt('Editar nombre del alumno:', currentName); 
                     
@@ -718,10 +726,26 @@
                         }
                         
                         updateStudentField(studentId, 'name', newNameTrimmed);
-                        tdName.textContent = newNameTrimmed;
+                        nameSpan.textContent = newNameTrimmed; // Actualiza el span, no la celda
                     }
                 });
+
+                // Botón de Eliminar (movido aquí)
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md';
+                deleteButton.type = "button";
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt fa-lg"></i>';
+                deleteButton.title = 'Eliminar alumno permanentemente';
+                deleteButton.addEventListener('click', () => openDeleteModal(studentId));
+
+                // Añadir nombre y botón al contenedor
+                nameContainer.appendChild(nameSpan);
+                nameContainer.appendChild(deleteButton);
+                
+                // Añadir contenedor a la celda
+                tdName.appendChild(nameContainer);
                 tr.appendChild(tdName);
+                // --- FIN MEJORA 9 ---
 
                 // 2-6. Campos de formulario
                 tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad)));
@@ -731,10 +755,9 @@
                 tr.appendChild(createCell(createFormField('input', 'email', 'email', studentData.email)));
 
                 // --- MEJORA 8: createTimestampTextarea MODIFICADO ---
-                // Ahora añade botones de plantilla
                 const createTimestampTextarea = (field, value) => {
                     const td = document.createElement('td');
-                    td.className = 'p-2'; // Celda de la tabla
+                    td.className = 'p-2 align-top'; // Añadido align-top para que las plantillas no muevan la caja
                     
                     // Contenedor para textarea y botón de timestamp
                     const container = document.createElement('div');
@@ -799,7 +822,7 @@
                 // 8. Registro de Visitas
                 tr.appendChild(createTimestampTextarea('visitas', studentData.visitas));
                 
-                // 9. Celda de Acciones
+                // --- MEJORA 9: CELDA DE ACCIONES MODIFICADA ---
                 const tdActions = document.createElement('td');
                 tdActions.className = 'p-2 text-center whitespace-nowrap'; // Añadido nowrap
 
@@ -812,7 +835,6 @@
                 quickViewButton.addEventListener('click', () => openQuickView(studentId));
                 tdActions.appendChild(quickViewButton);
                 // --- FIN MEJORA 7 ---
-
 
                 // Botón de Archivar
                 const archiveButton = document.createElement('button');
@@ -828,16 +850,10 @@
                 archiveButton.addEventListener('click', () => toggleStudentStatus(tr));
                 tdActions.appendChild(archiveButton);
 
-                // Botón de Eliminar
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md ml-2';
-                deleteButton.type = "button";
-                deleteButton.innerHTML = '<i class="fas fa-trash-alt fa-lg"></i>';
-                deleteButton.title = 'Eliminar alumno permanentemente';
-                deleteButton.addEventListener('click', () => openDeleteModal(studentId));
-                tdActions.appendChild(deleteButton);
-
+                // El botón de eliminar ya no está aquí
+                
                 tr.appendChild(tdActions);
+                // --- FIN MEJORA 9 ---
 
                 return tr;
             }
@@ -875,13 +891,11 @@
             }
 
             function copyToClipboard(text, buttonElement) {
-                const tempTextarea = document.createElement('textarea');
-                tempTextarea.value = text;
-                tempTextarea.style.position = 'absolute';
-                tempTextarea.style.left = '-9999px';
-                document.body.appendChild(tempTextarea);
-                tempTextarea.select();
+                // Usar el textarea helper para asegurar la compatibilidad
+                clipboardHelper.value = text;
+                clipboardHelper.select();
                 try {
+                    // Usar document.execCommand como fallback para iframes
                     document.execCommand('copy');
                     
                     // Feedback Visual
@@ -900,7 +914,8 @@
                     console.error('Fallo al copiar: ', err);
                     showAlert('No se pudo copiar el texto.', 'Error', 'error');
                 }
-                document.body.removeChild(tempTextarea);
+                // Limpiar
+                clipboardHelper.value = '';
             }
             // --- FIN MEJORA 8 ---
 
@@ -1102,7 +1117,7 @@
                 button.addEventListener('click', (e) => {
                     e.target.closest('.modal-backdrop').classList.add('hidden');
                     e.target.closest('.modal-backdrop').classList.remove('flex');
-                });
+                }); // <-- ¡Este cierre faltaba!
             });
 
             // --- INICIALIZACIÓN Y LISTENERS ---
@@ -1118,11 +1133,7 @@
                 addStudentModal.classList.add('flex');
             });
 
-            // --- CORRECCIÓN DE BUG ---
-            // El listener para 'save-new-student-button' estaba duplicado y uno era incorrecto.
-            // Se elimina la variable errónea 'saveNewStudentButton' y el listener erróneo.
-            // Este es el ÚNICO listener correcto para ese botón.
-            document.getElementById('save-new-student-button').addEventListener('click', () => {
+            saveNewStudentButton.addEventListener('click', () => {
                 const studentNameInput = document.getElementById('new-student-name');
                 const studentName = studentNameInput.value.trim();
                 
@@ -1160,7 +1171,6 @@
                 addStudentModal.classList.remove('flex');
                 showAlert('Alumno añadido correctamente.', 'Éxito', 'success');
             });
-            // --- FIN CORRECCIÓN DE BUG ---
             
             confirmDeleteButton.addEventListener('click', deleteStudent);
             cancelDeleteButton.addEventListener('click', () => {
@@ -1208,4 +1218,5 @@
     </script>
 </body>
 </html>
+
 
