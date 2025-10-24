@@ -57,7 +57,8 @@
         
         /* Ajustes de la tabla */
         .table-responsive-container { overflow-x: auto; }
-        table { min-width: 1650px; } 
+        /* --- MEJORA 10: Reducir min-width al quitar la columna de acciones --- */
+        table { min-width: 1550px; } 
         th { white-space: normal; vertical-align: top; }
         td { white-space: nowrap; }
         td .form-element { min-width: 150px; }
@@ -227,12 +228,14 @@
                         <th class="p-4">Correo Electrónico</th>
                         <th class="p-4">Registro de Llamadas</th>
                         <th class="p-4">Registro de reuniones</th>
-                        <th class="p-4">Acciones</th>
+                        <!-- --- MEJORA 10: Eliminar cabecera de Acciones --- -->
+                        <!-- <th class="p-4">Acciones</th> -->
                     </tr>
                 </thead>
                 <tbody id="student-table-body">
                     <tr>
-                        <td colspan="10" class="p-8 text-center text-gray-400">
+                         <!-- --- MEJORA 10: Ajustar colspan --- -->
+                        <td colspan="9" class="p-8 text-center text-gray-400">
                             Aún no hay alumnado. Usa el botón "Importar Lista" o "Añadir Alumno".
                         </td>
                     </tr>
@@ -539,7 +542,7 @@
                 if (studentIds.length === 0) {
                     studentTableBody.innerHTML = `
                         <tr>
-                            <td colspan="10" class="p-8 text-center text-gray-400">
+                            <td colspan="9" class="p-8 text-center text-gray-400">
                                 Aún no hay alumnado. Usa el botón "Importar Lista" o "Añadir Alumno".
                             </td>
                         </tr>`;
@@ -695,12 +698,12 @@
                 tdNum.textContent = studentNumber;
                 tr.appendChild(tdNum);
 
-                // --- MEJORA 9: CELDA DE NOMBRE CON BOTÓN DE ELIMINAR ---
+                // --- MEJORA 9 & 10: CELDA DE NOMBRE CON TODAS LAS ACCIONES ---
                 const tdName = document.createElement('td');
                 tdName.className = 'p-2 font-medium text-white'; // p-2 para alinear
                 
                 const nameContainer = document.createElement('div');
-                nameContainer.className = 'flex items-center justify-between gap-2'; // Contenedor Flex
+                nameContainer.className = 'flex items-center justify-between gap-1'; // Contenedor Flex, gap-1
 
                 // Span para el nombre (editable)
                 const nameSpan = document.createElement('span');
@@ -729,23 +732,51 @@
                         nameSpan.textContent = newNameTrimmed; // Actualiza el span, no la celda
                     }
                 });
+                
+                // Contenedor para los botones de acción
+                const actionsContainer = document.createElement('div');
+                actionsContainer.className = 'flex items-center flex-shrink-0'; // Para que no se encoja
 
-                // Botón de Eliminar (movido aquí)
+                // Botón de Eliminar
                 const deleteButton = document.createElement('button');
-                deleteButton.className = 'flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md';
+                deleteButton.className = 'text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md';
                 deleteButton.type = "button";
                 deleteButton.innerHTML = '<i class="fas fa-trash-alt fa-lg"></i>';
                 deleteButton.title = 'Eliminar alumno permanentemente';
                 deleteButton.addEventListener('click', () => openDeleteModal(studentId));
+                actionsContainer.appendChild(deleteButton); // Añadir a su contenedor
 
-                // Añadir nombre y botón al contenedor
+                // Botón de Ficha Rápida (Ojo)
+                const quickViewButton = document.createElement('button');
+                quickViewButton.className = 'text-gray-400 hover:text-blue-400 transition-colors px-2 py-1 rounded-md';
+                quickViewButton.type = "button";
+                quickViewButton.innerHTML = '<i class="fas fa-eye fa-lg"></i>';
+                quickViewButton.title = 'Ver ficha rápida del alumno';
+                quickViewButton.addEventListener('click', () => openQuickView(studentId));
+                actionsContainer.appendChild(quickViewButton); // Añadir a su contenedor
+
+                // Botón de Archivar/Reactivar
+                const archiveButton = document.createElement('button');
+                archiveButton.className = 'text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded-md';
+                archiveButton.type = "button";
+                if (status === 'active') {
+                    archiveButton.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
+                    archiveButton.title = 'Archivar alumno';
+                } else {
+                    archiveButton.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
+                    archiveButton.title = 'Reactivar alumno';
+                }
+                archiveButton.addEventListener('click', () => toggleStudentStatus(tr)); // Pasar 'tr' es importante
+                actionsContainer.appendChild(archiveButton); // Añadir a su contenedor
+
+                // Añadir nombre y botones al contenedor principal
                 nameContainer.appendChild(nameSpan);
-                nameContainer.appendChild(deleteButton);
+                nameContainer.appendChild(actionsContainer); // Añadir el grupo de botones
                 
-                // Añadir contenedor a la celda
+                // Añadir contenedor principal a la celda
                 tdName.appendChild(nameContainer);
                 tr.appendChild(tdName);
-                // --- FIN MEJORA 9 ---
+                // --- FIN MEJORA 9 & 10 ---
 
                 // 2-6. Campos de formulario
                 tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad)));
@@ -822,38 +853,9 @@
                 // 8. Registro de Visitas
                 tr.appendChild(createTimestampTextarea('visitas', studentData.visitas));
                 
-                // --- MEJORA 9: CELDA DE ACCIONES MODIFICADA ---
-                const tdActions = document.createElement('td');
-                tdActions.className = 'p-2 text-center whitespace-nowrap'; // Añadido nowrap
-
-                // --- MEJORA 7: BOTÓN DE FICHA RÁPIDA (OJO) ---
-                const quickViewButton = document.createElement('button');
-                quickViewButton.className = 'text-gray-400 hover:text-blue-400 transition-colors px-2 py-1 rounded-md';
-                quickViewButton.type = "button";
-                quickViewButton.innerHTML = '<i class="fas fa-eye fa-lg"></i>';
-                quickViewButton.title = 'Ver ficha rápida del alumno';
-                quickViewButton.addEventListener('click', () => openQuickView(studentId));
-                tdActions.appendChild(quickViewButton);
-                // --- FIN MEJORA 7 ---
-
-                // Botón de Archivar
-                const archiveButton = document.createElement('button');
-                archiveButton.className = 'text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded-md ml-2';
-                archiveButton.type = "button";
-                if (status === 'active') {
-                    archiveButton.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
-                    archiveButton.title = 'Archivar alumno';
-                } else {
-                    archiveButton.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
-                    archiveButton.title = 'Reactivar alumno';
-                }
-                archiveButton.addEventListener('click', () => toggleStudentStatus(tr));
-                tdActions.appendChild(archiveButton);
-
-                // El botón de eliminar ya no está aquí
-                
-                tr.appendChild(tdActions);
-                // --- FIN MEJORA 9 ---
+                // --- MEJORA 10: Eliminar la celda de Acciones ---
+                // La celda tdActions y su contenido se han movido a la celda del nombre
+                // tr.appendChild(tdActions); 
 
                 return tr;
             }
@@ -920,13 +922,17 @@
             // --- FIN MEJORA 8 ---
 
 
+            // --- MEJORA 10: toggleStudentStatus MODIFICADO ---
+            // Ahora busca el botón de archivar dentro del nameContainer
             function toggleStudentStatus(rowElement) {
                 const studentId = rowElement.dataset.studentId;
                 const currentStatus = rowElement.dataset.status;
                 const newStatus = (currentStatus === 'active') ? 'inactive' : 'active';
                 rowElement.dataset.status = newStatus;
                 
-                const button = rowElement.querySelector('button[title*="Archivar"], button[title*="Reactivar"]');
+                // Buscar el botón dentro del nameContainer de esta fila
+                const button = rowElement.querySelector('.flex .items-center.flex-shrink-0 button[title*="Archivar"], .flex .items-center.flex-shrink-0 button[title*="Reactivar"]');
+                
                 if (newStatus === 'inactive') {
                     rowElement.classList.add('student-inactive');
                     if (button) {
@@ -946,6 +952,7 @@
                     saveData();
                 }
             }
+            // --- FIN MEJORA 10 ---
             
             function openDeleteModal(studentId) {
                 studentIdToDelete = studentId;
@@ -1117,7 +1124,7 @@
                 button.addEventListener('click', (e) => {
                     e.target.closest('.modal-backdrop').classList.add('hidden');
                     e.target.closest('.modal-backdrop').classList.remove('flex');
-                }); // <-- ¡Este cierre faltaba!
+                }); 
             });
 
             // --- INICIALIZACIÓN Y LISTENERS ---
@@ -1201,7 +1208,8 @@
                     if (!noResultsRow) {
                         noResultsRow = document.createElement('tr');
                         noResultsRow.className = 'no-search-results';
-                        noResultsRow.innerHTML = `<td colspan="10" class="p-8 text-center text-gray-400">No se encontraron alumnos con el nombre "${searchText}".</td>`; 
+                        // --- MEJORA 10: Ajustar colspan ---
+                        noResultsRow.innerHTML = `<td colspan="9" class="p-8 text-center text-gray-400">No se encontraron alumnos con el nombre "${searchText}".</td>`; 
                         studentTableBody.appendChild(noResultsRow);
                     } else {
                         noResultsRow.querySelector('td').textContent = `No se encontraron alumnos con el nombre "${searchText}".`;
@@ -1218,5 +1226,4 @@
     </script>
 </body>
 </html>
-
 
