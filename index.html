@@ -199,6 +199,8 @@
         <!-- Cabecera de la aplicación -->
         <header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                 <!-- Contenedor del título y los campos de info -->
+                 <!-- Eliminado md:w-auto para que ocupe todo el ancho disponible -->
                 <div class="w-full"> 
                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3"> 
                         APLICACIÓN TUTORÍA V3
@@ -207,7 +209,6 @@
                         </span>
                     </h1>
                       <!-- --- AJUSTE DE ANCHOS CABECERA --- -->
-                      <!-- Cambiado a lg:grid-cols-6 y añadido lg:col-span-2 a Tutor y Centro -->
                       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-6 gap-y-4">
                           <div class="lg:col-span-2">
                               <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Tutor/a</label>
@@ -814,7 +815,7 @@
 
                 // 2-6. Campos de formulario
                 tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad), 'no-wrap')); 
-                tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion), 'hide-on-mobile no-wrap')); 
+                tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion), 'hide-on-mobile no-wrap')); // Mantener no-wrap aquí por consistencia con cabecera
                 tr.appendChild(createCell(createFormField('input', 'text', 'tutorNombre', studentData.tutorNombre), 'hide-on-mobile')); 
                 tr.appendChild(createCell(createFormField('input', 'tel', 'tutorMovil', studentData.tutorMovil)));
                 tr.appendChild(createCell(createFormField('input', 'email', 'email', studentData.email)));
