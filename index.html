@@ -62,6 +62,7 @@
             table-layout: auto; /* Permitir que el navegador ajuste anchos */
         } 
         th, td { 
+            /* white-space: nowrap; Eliminado nowrap por defecto */
             white-space: normal; /* Permitir ajuste por defecto */
             vertical-align: top; 
             padding: 0.5rem; /* Padding base reducido */
@@ -69,7 +70,7 @@
         th {
              white-space: normal; /* Asegurar que los títulos largos también se ajusten */
         }
-        /* Forzar nowrap solo en celdas que realmente lo necesiten */
+        /* Forzar nowrap solo en celdas que realmente lo necesiten (pocas) */
         .no-wrap { white-space: nowrap !important; }
 
         /* En pantallas pequeñas, reducir padding aún más si es necesario */
@@ -86,7 +87,7 @@
         .textarea-container { position: relative; min-width: 160px; } /* Reducido aún más */
         .textarea-container textarea { 
             white-space: pre-wrap; 
-            word-break: break-word; 
+            word-break: break-word; /* Forzar ruptura de palabras largas si es necesario */
         }
         /* --- FIN AJUSTE DE ANCHOS --- */
         
@@ -200,7 +201,7 @@
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div class="w-full"> 
                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3"> 
-                        APLICACIÓN TUTORÍA V5
+                        APLICACIÓN TUTORÍA V3
                         <span id="save-status" class="text-lg text-green-400 opacity-0 transition-opacity duration-500 whitespace-nowrap"> 
                             Guardado ✓
                         </span>
@@ -272,17 +273,17 @@
             <table class="w-full text-left">
                 <thead class="border-b border-gray-600 text-orange-400">
                     <tr>
-                         <!-- --- AJUSTE DE ANCHOS: Añadir clases a los TH --- -->
+                         <!-- --- AJUSTE DE ANCHOS Y WRAP --- -->
                         <th class="p-2 md:p-4 no-wrap w-12">#</th> 
                         <th class="p-2 md:p-4 min-w-[250px]">Nombre y Acciones</th>
                         <th class="p-2 md:p-4 no-wrap w-24">Edad</th> 
-                        <th class="p-2 md:p-4 hide-on-mobile no-wrap w-32">Autorización Salida</th> 
+                        <th class="p-2 md:p-4 hide-on-mobile w-24">Autorización Salida</th> <!-- Eliminado no-wrap -->
                         <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Nombres Padres</th>
                         <th class="p-2 md:p-4 min-w-[180px]">Móvil</th>
                         <th class="p-2 md:p-4 min-w-[200px]">Email</th>
                         <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Llamadas</th>
                         <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Reuniones</th>
-                         <!-- --- FIN AJUSTE DE ANCHOS --- -->
+                         <!-- --- FIN AJUSTE DE ANCHOS Y WRAP --- -->
                     </tr>
                 </thead>
                 <tbody id="student-table-body">
