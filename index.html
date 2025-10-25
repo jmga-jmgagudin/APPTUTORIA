@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Título editado por el usuario --><title>APLICACIÓN TUTORÍA</title>
+    <!-- Título editado por el usuario --><title>APLICACIÓN TUTORÍA V3</title>
     
     <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     
@@ -55,15 +55,41 @@
             padding-right: 2.5rem;
         }
         
-        /* Ajustes de la tabla */
-        .table-responsive-container { overflow-x: auto; }
-        /* --- MEJORA 10: Reducir min-width al quitar la columna de acciones --- */
-        table { min-width: 1550px; } 
-        th { white-space: normal; vertical-align: top; }
-        td { white-space: nowrap; }
-        td .form-element { min-width: 150px; }
-        .textarea-container { position: relative; min-width: 250px; }
-        .textarea-container textarea { white-space: pre-wrap; }
+        /* --- AJUSTE RESPONSIVO: Permitir ajuste de texto --- */
+        .table-responsive-container { overflow-x: auto; } 
+        table { 
+            width: 100%; 
+            table-layout: auto; /* Permitir que el navegador ajuste anchos */
+        } 
+        th, td { 
+            /* white-space: nowrap; Eliminado nowrap por defecto */
+            white-space: normal; /* Permitir ajuste por defecto */
+            vertical-align: top; 
+            padding: 0.5rem; /* Padding base reducido */
+        }
+        th {
+             white-space: normal; /* Asegurar que los títulos largos también se ajusten */
+        }
+        /* Forzar nowrap solo en celdas que realmente lo necesiten (pocas) */
+        .no-wrap { white-space: nowrap !important; }
+
+        /* En pantallas pequeñas, reducir padding aún más si es necesario */
+        @media (max-width: 768px) { 
+            th, td {
+                padding-left: 0.5rem; 
+                padding-right: 0.5rem;
+            }
+            .hide-on-mobile { display: none; } 
+            /* Asegurar que el nombre+acciones tenga espacio */
+            .name-actions-cell { min-width: 200px; } 
+        }
+        /* Ajustar min-width del textarea y asegurar ajuste de texto */
+        .textarea-container { position: relative; min-width: 180px; } /* Reducido min-width */
+        .textarea-container textarea { 
+            white-space: pre-wrap; 
+            word-break: break-word; /* Forzar ruptura de palabras largas si es necesario */
+        }
+        /* --- FIN AJUSTE RESPONSIVO --- */
         
         /* Botón de timestamp */
         .add-timestamp-button {
@@ -101,17 +127,18 @@
         .modal-backdrop {
             background-color: rgba(17, 24, 39, 0.8);
             backdrop-filter: blur(5px);
+            overflow-y: auto; 
         }
         .modal-body {
-            max-height: 70vh;
+            max-height: 70vh; 
             overflow-y: auto;
         }
 
         /* --- MEJORA 7: ESTILOS PARA FICHA RÁPIDA --- */
         .quick-view-log {
-            white-space: pre-wrap; /* Respeta saltos de línea y espacios */
-            background-color: #1f2937; /* bg-gray-800 */
-            border: 1px solid #4b5563; /* border-gray-600 */
+            white-space: pre-wrap; 
+            background-color: #1f2937; 
+            border: 1px solid #4b5563; 
             border-radius: 0.375rem;
             padding: 0.75rem;
             max-height: 200px;
@@ -121,17 +148,17 @@
         }
         .quick-view-log:empty::before {
             content: "(Sin anotaciones)";
-            color: #9ca3af; /* gray-400 */
+            color: #9ca3af; 
             font-style: italic;
         }
 
         /* --- MEJORA 8: ESTILOS PARA BOTONES DE PLANTILLAS Y COPIAR --- */
         .copy-button.copied {
-            color: #22c55e; /* text-green-500 */
+            color: #22c55e; 
         }
         .template-button {
-            background-color: #4b5563; /* bg-gray-600 */
-            color: #d1d5db; /* text-gray-300 */
+            background-color: #4b5563; 
+            color: #d1d5db; 
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
             border: none;
@@ -140,45 +167,68 @@
             cursor: pointer;
         }
         .template-button:hover {
-            background-color: #6b7280; /* bg-gray-500 */
+            background-color: #6b7280; 
         }
         /* --- FIN MEJORA 8 --- */
+
+        /* --- MEJORA 13: ESTILOS PARA BOTÓN DE BORRAR BÚSQUEDA --- */
+        .search-clear-button {
+            position: absolute;
+            right: 0.75rem; 
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af; 
+            cursor: pointer;
+            display: none; 
+        }
+        .search-clear-button:hover {
+            color: #f3f4f6; 
+        }
+        input[type="search"]::-webkit-search-cancel-button {
+             -webkit-appearance: none; 
+             appearance: none;
+        }
+        /* --- FIN MEJORA 13 --- */
+
     </style>
 </head>
 <body class="text-gray-200">
 
     <div class="container mx-auto p-4 md:p-8">
         
-        <!-- Cabecera de la aplicación --><header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                    <!-- Título editado por el usuario --><h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                        APLICACIÓN TUTORÍA-V4
-                        <span id="save-status" class="ml-3 text-lg text-green-400 opacity-0 transition-opacity duration-500">
+        <!-- Cabecera de la aplicación -->
+        <header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="w-full"> 
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3"> 
+                        APLICACIÓN TUTORÍA V3
+                        <span id="save-status" class="text-lg text-green-400 opacity-0 transition-opacity duration-500 whitespace-nowrap"> 
                             Guardado ✓
                         </span>
                     </h1>
-                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                          <div class="sm:col-span-2">
-                              <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Nombre del tutor/a</label>
-                              <input type="text" id="tutorName" class="form-element" placeholder="Nombre del tutor/a...">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                          <div>
+                              <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Tutor/a</label>
+                              <input type="text" id="tutorName" class="form-element text-sm" placeholder="Nombre...">
                           </div>
-                          <div class="sm:col-span-2">
+                          <div>
                               <label for="centerName" class="block text-sm font-medium text-gray-300 mb-1">Centro</label>
-                              <input type="text" id="centerName" class="form-element" placeholder="Centro...">
+                              <input type="text" id="centerName" class="form-element text-sm" placeholder="Centro...">
                           </div>
                           <div>
                               <label for="groupName" class="block text-sm font-medium text-gray-300 mb-1">Grupo</label>
-                              <input type="text" id="groupName" class="form-element" placeholder="Grupo...">
+                              <input type="text" id="groupName" class="form-element text-sm" placeholder="Grupo...">
                           </div>
                           <div>
-                              <label for="courseYear" class="block text-sm font-medium text-gray-300 mb-1">Curso Académico</label>
-                              <input type="text" id="courseYear" class="form-element" placeholder="Curso académico...">
+                              <label for="courseYear" class="block text-sm font-medium text-gray-300 mb-1">Curso</label>
+                              <input type="text" id="courseYear" class="form-element text-sm" placeholder="Académico...">
                           </div>
                     </div>
                 </div>
-                <!-- Botonera de acciones --><div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 md:mt-0 self-start md:self-center w-full md:w-auto">
-                    <!-- Fila 1: Añadir/Importar/Exportar --><div class="flex flex-col sm:flex-row gap-2 w-full">
+                <!-- Botonera de acciones -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 md:mt-0 self-start md:self-center w-full md:w-auto">
+                    <!-- Fila 1 -->
+                    <div class="flex flex-col sm:flex-row gap-2 w-full">
                          <button id="add-student-button" class="w-full sm:w-auto text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
                             <i class="fas fa-user-plus mr-2"></i> Añadir Alumno
                         </button>
@@ -189,7 +239,8 @@
                             <i class="fas fa-file-excel mr-2"></i> Exportar (CSV)
                         </button>
                     </div>
-                     <!-- Fila 2: Guardar/Cargar/Resetear --><div class="flex flex-col sm:flex-row gap-2 w-full">
+                     <!-- Fila 2 -->
+                     <div class="flex flex-col sm:flex-row gap-2 w-full">
                          <button id="save-json-button" class="w-full sm:w-auto text-center bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
                             <i class="fas fa-save mr-2"></i> Guardar Datos (JSON)
                         </button>
@@ -204,37 +255,37 @@
             </div>
         </header>
 
-        <!-- Contenedor de la tabla --><main class="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg table-responsive-container p-4">
+        <!-- Contenedor de la tabla -->
+        <main class="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg table-responsive-container p-4">
             
-            <!-- Campo de búsqueda --><div class="mb-4">
+            <!-- Campo de búsqueda -->
+            <div class="mb-4 relative">
                 <label for="search-input" class="sr-only">Buscar alumno...</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                    <input type="search" id="search-input" class="form-element pl-10" placeholder="Buscar alumno por nombre...">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
                 </div>
+                <input type="search" id="search-input" class="form-element pl-10 pr-10" placeholder="Buscar alumno por nombre...">
+                <button id="search-clear-button" class="search-clear-button" title="Limpiar búsqueda">
+                    <i class="fas fa-times-circle"></i>
+                </button>
             </div>
             
             <table class="w-full text-left">
                 <thead class="border-b border-gray-600 text-orange-400">
                     <tr>
-                        <th class="p-4">#</th>
-                        <th class="p-4">Nombre del Alumno/a</th>
-                        <th class="p-4">Edad</th>
-                        <th class="p-4">Autorización Salida</th>
-                        <th class="p-4">Nombres de los Padres</th>
-                        <th class="p-4">Móvil de contacto</th>
-                        <th class="p-4">Correo Electrónico</th>
-                        <th class="p-4">Registro de Llamadas</th>
-                        <th class="p-4">Registro de reuniones</th>
-                        <!-- --- MEJORA 10: Eliminar cabecera de Acciones --- -->
-                        <!-- <th class="p-4">Acciones</th> -->
+                        <th class="p-2 md:p-4 no-wrap">#</th> <!-- No wrap para el número -->
+                        <th class="p-2 md:p-4">Nombre y Acciones</th>
+                        <th class="p-2 md:p-4 no-wrap">Edad</th> <!-- No wrap para Edad -->
+                        <th class="p-2 md:p-4 hide-on-mobile no-wrap">Autorización Salida</th> <!-- No wrap -->
+                        <th class="p-2 md:p-4 hide-on-mobile">Nombres Padres</th>
+                        <th class="p-2 md:p-4">Móvil</th>
+                        <th class="p-2 md:p-4">Email</th>
+                        <th class="p-2 md:p-4 hide-on-mobile">Llamadas</th>
+                        <th class="p-2 md:p-4 hide-on-mobile">Reuniones</th>
                     </tr>
                 </thead>
                 <tbody id="student-table-body">
                     <tr>
-                         <!-- --- MEJORA 10: Ajustar colspan --- -->
                         <td colspan="9" class="p-8 text-center text-gray-400">
                             Aún no hay alumnado. Usa el botón "Importar Lista" o "Añadir Alumno".
                         </td>
@@ -244,7 +295,10 @@
         </main>
     </div>
 
-    <!-- Modales --><!-- Modal de Importación --><div id="import-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+    <!-- Modales (sin cambios estructurales) -->
+    <!-- ... resto de modales ... -->
+     <!-- Modal Importar -->
+    <div id="import-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
             <h2 class="text-2xl font-bold text-blue-400 mb-4">Importar Lista de Alumnado</h2>
             <p class="text-gray-300 mb-4">Pega tu lista de alumnado aquí (un nombre por línea). Esto reemplazará la lista actual.</p>
@@ -255,8 +309,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal de confirmación para Resetear --><div id="reset-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+    <!-- Modal Resetear -->
+     <div id="reset-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
             <h2 class="text-2xl font-bold text-red-500 mb-4">Confirmar Reseteo</h2>
             <p class="text-gray-300 mb-6">¿Estás seguro de que quieres borrar toda la información? Esta acción no se puede deshacer.</p>
@@ -266,8 +320,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal de Alerta --><div id="alert-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+    <!-- Modal Alerta -->
+    <div id="alert-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
             <h2 id="alert-title" class="text-2xl font-bold text-orange-400 mb-4">Aviso</h2>
             <p id="alert-message" class="text-gray-300 mb-6">Este es un mensaje de aviso.</p>
@@ -276,14 +330,15 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal de Añadir Alumno --><div id="add-student-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+    <!-- Modal Añadir Alumno -->
+    <div id="add-student-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
             <h2 class="text-2xl font-bold text-green-400 mb-6">Añadir Nuevo Alumno/a</h2>
             
             <form id="add-student-form">
-                <div class="modal-body p-1"> <!-- Contenedor con scroll --><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <!-- Columna 1 --><div>
+                <div class="modal-body p-1"> <!-- Contenido del formulario -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
                             <label for="new-student-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre Completo (*)</label>
                             <input type="text" id="new-student-name" class="form-element" placeholder="Nombre y apellidos..." required>
                         </div>
@@ -315,8 +370,7 @@
                             <label for="new-student-email" class="block text-sm font-medium text-gray-300 mb-1">Correo Electrónico</label>
                             <input type="email" id="new-student-email" class="form-element" placeholder="email@ejemplo.com...">
                         </div>
-
-                        <!-- Textareas en ancho completo --><div class="md:col-span-2">
+                        <div class="md:col-span-2">
                             <label for="new-student-llamadas" class="block text-sm font-medium text-gray-300 mb-1">Registro de Llamadas</ci>
                             <textarea id="new-student-llamadas" class="form-element h-24" placeholder="Anotaciones sobre llamadas..."></textarea>
                         </div>
@@ -334,8 +388,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal de confirmación para Eliminar Alumno --><div id="delete-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+    <!-- Modal Eliminar -->
+    <div id="delete-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-md p-6 relative">
             <h2 class="text-2xl font-bold text-red-500 mb-4">Confirmar Eliminación</h2>
             <p class="text-gray-300 mb-6">¿Estás seguro de que quieres <strong class="text-red-400">eliminar permanentemente</strong> a este alumno y todos sus datos? Esta acción no se puede deshacer.</p>
@@ -346,55 +400,39 @@
         </div>
     </div>
 
-    <!-- --- MEJORA 7: HTML DEL MODAL DE FICHA RÁPIDA --- -->
+    <!-- --- MEJORA 7 & 14: HTML DEL MODAL DE FICHA RÁPIDA (Ahora con inputs) --- -->
     <div id="quick-view-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
             <h2 id="quick-view-title" class="text-2xl font-bold text-orange-400 mb-6">Ficha Rápida de [Alumno]</h2>
             
-            <div class="modal-body p-1 space-y-4">
-                <!-- Datos Principales -->
-                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-                    <div>
-                        <dt class="font-medium text-gray-400">Edad</dt>
-                        <dd id="quick-view-edad" class="text-lg text-white"></dd>
+            <form id="quick-view-form">
+                <div class="modal-body p-1 space-y-4">
+                    <!-- Contenedor para los campos editables -->
+                    <div id="quick-view-fields-container" class="space-y-4">
+                        <!-- Aquí se generarán los campos dinámicamente -->
                     </div>
-                    <div>
-                        <dt class="font-medium text-gray-400">Autorización Salida</dt>
-                        <dd id="quick-view-autorizacion" class="text-lg text-white"></dd>
-                    </div>
-                    <div class="md:col-span-2">
-                        <dt class="font-medium text-gray-400">Nombres de los Padres/Tutores</dt>
-                        <dd id="quick-view-tutorNombre" class="text-lg text-white"></dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-400">Móvil de contacto</dt>
-                        <dd id="quick-view-tutorMovil" class="text-lg text-white"></dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-400">Correo Electrónico</dt>
-                        <dd id="quick-view-email" class="text-lg text-white"></dd>
-                    </div>
-                </dl>
 
-                <!-- Registros -->
-                <div class="space-y-4 pt-4 border-t border-gray-700">
-                    <div>
-                        <h3 class="font-medium text-gray-400 mb-2">Registro de Llamadas</h3>
-                        <div id="quick-view-llamadas" class="quick-view-log"></div>
-                    </div>
-                    <div>
-                        <h3 class="font-medium text-gray-400 mb-2">Registro de Reuniones</h3>
-                        <div id="quick-view-visitas" class="quick-view-log"></div>
+                    <!-- Registros (siempre editables con textarea) -->
+                    <div class="space-y-4 pt-4 border-t border-gray-700">
+                        <div>
+                            <label for="quick-view-llamadas-input" class="font-medium text-gray-400 mb-1 block">Registro de Llamadas</label>
+                            <textarea id="quick-view-llamadas-input" data-field="llamadas" class="form-element h-32 quick-view-log"></textarea>
+                        </div>
+                        <div>
+                            <label for="quick-view-visitas-input" class="font-medium text-gray-400 mb-1 block">Registro de Reuniones</label>
+                            <textarea id="quick-view-visitas-input" data-field="visitas" class="form-element h-32 quick-view-log"></textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
             
-            <div class="flex justify-end space-x-4 mt-6 pt-4 border-t border-gray-700">
-                <button class="modal-close bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cerrar</button>
+            <div class="flex justify-between items-center space-x-4 mt-6 pt-4 border-t border-gray-700">
+                 <button id="quick-view-cancel-button" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-5 rounded-md transition-colors">Cancelar</button>
+                 <button id="quick-view-save-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition-colors">Guardar Cambios</button>
             </div>
         </div>
     </div>
-    <!-- --- FIN MEJORA 7 --- -->
+    <!-- --- FIN MEJORA 7 & 14 --- -->
 
 
     <!-- Input de fichero oculto para cargar JSON --><input type="file" id="json-file-input" class="hidden" accept=".json">
@@ -433,16 +471,16 @@
             const alertMessage = document.getElementById('alert-message');
             const addStudentModal = document.getElementById('add-student-modal');
             const deleteModal = document.getElementById('delete-modal');
-            // --- MEJORA 7: CONSTANTES DE FICHA RÁPIDA ---
+            
+            // --- MEJORA 7 & 14: CONSTANTES DE FICHA RÁPIDA (MODAL EDITABLE) ---
             const quickViewModal = document.getElementById('quick-view-modal');
             const quickViewTitle = document.getElementById('quick-view-title');
-            const quickViewEdad = document.getElementById('quick-view-edad');
-            const quickViewAutorizacion = document.getElementById('quick-view-autorizacion');
-            const quickViewTutorNombre = document.getElementById('quick-view-tutorNombre');
-            const quickViewTutorMovil = document.getElementById('quick-view-tutorMovil');
-            const quickViewEmail = document.getElementById('quick-view-email');
-            const quickViewLlamadas = document.getElementById('quick-view-llamadas');
-            const quickViewVisitas = document.getElementById('quick-view-visitas');
+            const quickViewForm = document.getElementById('quick-view-form'); // Formulario
+            const quickViewFieldsContainer = document.getElementById('quick-view-fields-container'); // Contenedor de campos
+            const quickViewLlamadasInput = document.getElementById('quick-view-llamadas-input'); // Textarea llamadas
+            const quickViewVisitasInput = document.getElementById('quick-view-visitas-input'); // Textarea visitas
+            const quickViewSaveButton = document.getElementById('quick-view-save-button');
+            const quickViewCancelButton = document.getElementById('quick-view-cancel-button');
             
             // --- Botones ---
             const importButton = document.getElementById('import-button');
@@ -460,6 +498,7 @@
             const confirmDeleteButton = document.getElementById('confirm-delete-button');
             const cancelDeleteButton = document.getElementById('cancel-delete-button');
             const searchInput = document.getElementById('search-input'); // Para la Mejora 1
+            const searchClearButton = document.getElementById('search-clear-button'); // MEJORA 13
 
             // --- DATOS GLOBALES ---
             let appData = {
@@ -471,6 +510,7 @@
             };
             let studentIdToDelete = null; 
             let saveStatusTimer = null; 
+            let currentEditingStudentId = null; // MEJORA 14: Para saber a quién editamos en el modal
 
             // --- LÓGICA DE GUARDADO/CARGA DE DATOS (localStorage) ---
             
@@ -567,10 +607,11 @@
                     studentTableBody.appendChild(newRow);
                 });
 
-                const currentSearchText = document.getElementById('search-input').value;
+                // Re-aplicar filtro si existe
+                const currentSearchText = searchInput.value;
                 if (currentSearchText) {
-                    const event = new Event('input');
-                    document.getElementById('search-input').dispatchEvent(event);
+                    const event = new Event('input', { bubbles: true }); // Asegurar que burbujee
+                    searchInput.dispatchEvent(event);
                 }
             }
 
@@ -587,26 +628,25 @@
                     tr.classList.add('student-underage');
                 }
 
-                const createCell = (content) => {
+                const createCell = (content, extraClasses = '') => { 
                     const td = document.createElement('td');
-                    td.className = 'p-2';
+                    td.className = `p-2 ${extraClasses}`; 
                     td.appendChild(content);
                     return td;
                 };
 
-                // --- MEJORA 7 & 8: createFormField MODIFICADO ---
                 const createFormField = (tag, type, field, value) => {
                     const el = document.createElement(tag);
-                    el.className = 'form-element';
+                    el.className = 'form-element text-sm'; 
                     el.dataset.field = field;
                     el.value = value || '';
                     if (tag === 'input') el.type = type;
                     
                     if (tag === 'input') {
                         switch (field) {
-                            case 'tutorNombre': el.placeholder = 'Nombres de los padres...'; break;
-                            case 'tutorMovil': el.placeholder = 'Móvil de comunicación...'; break;
-                            case 'email': el.placeholder = 'Email de contacto...'; break;
+                            case 'tutorNombre': el.placeholder = 'Padres...'; break; 
+                            case 'tutorMovil': el.placeholder = 'Móvil...'; break;
+                            case 'email': el.placeholder = 'Email...'; break;
                             default: el.placeholder = '...';
                         }
                     }
@@ -615,7 +655,7 @@
                         let options = [];
                         if (field === 'edad') options = ['', 'Menor de edad', 'Mayor de edad'];
                         if (field === 'autorizacion') options = ['', 'Sí', 'No'];
-                        el.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                        el.innerHTML = options.map(opt => `<option value="${opt}">${opt || '...'}</option>`).join(''); 
                         el.value = value || ''; 
                     }
                     
@@ -637,39 +677,36 @@
 
                     if (field === 'tutorMovil' || field === 'email' || field === 'tutorNombre') {
                         const container = document.createElement('div');
-                        container.className = 'flex items-center gap-2 w-full';
+                        container.className = 'flex items-center gap-1 w-full'; 
                         
-                        el.classList.add('flex-grow'); // Input llena el espacio
+                        el.classList.add('flex-grow'); 
 
-                        // Botón de Copiar
                         const copyButton = document.createElement('button');
-                        copyButton.className = 'copy-button flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-2 rounded-md';
+                        copyButton.className = 'copy-button flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-1 rounded-md'; 
                         copyButton.type = "button";
-                        copyButton.innerHTML = '<i class="fas fa-clipboard fa-lg"></i>';
+                        copyButton.innerHTML = '<i class="fas fa-clipboard"></i>'; 
                         copyButton.title = 'Copiar al portapapeles';
                         copyButton.addEventListener('click', () => copyToClipboard(el.value, copyButton));
 
-                        container.appendChild(el); // Input primero
+                        container.appendChild(el); 
 
-                        // Botón de Acción (Teléfono o Email)
                         if (field === 'tutorMovil' || field === 'email') {
                             const link = document.createElement('a');
-                            link.className = 'flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-2 rounded-md';
+                            link.className = 'flex-shrink-0 text-gray-400 hover:text-orange-400 transition-colors p-1 rounded-md'; 
                             link.target = '_blank';
 
                             if (field === 'tutorMovil') {
                                 link.href = `tel:${value || ''}`;
                                 link.title = "Llamar al móvil";
-                                link.innerHTML = '<i class="fas fa-phone fa-lg"></i>';
-                            } else { // email
+                                link.innerHTML = '<i class="fas fa-phone"></i>'; 
+                            } else { 
                                 link.href = `mailto:${value || ''}`;
                                 link.title = "Enviar email";
-                                link.innerHTML = '<i class="fas fa-envelope fa-lg"></i>';
+                                link.innerHTML = '<i class="fas fa-envelope"></i>'; 
                             }
 
                             el.addEventListener('input', (e) => {
-                                inputListener(e); // Lógica de guardado
-                                // Actualizar el href del botón de acción
+                                inputListener(e); 
                                 const newValue = e.target.value;
                                 if (field === 'tutorMovil') {
                                     link.href = `tel:${newValue}`;
@@ -677,40 +714,41 @@
                                     link.href = `mailto:${newValue}`;
                                 }
                             });
-                            container.appendChild(link); // Añadir link
+                            container.appendChild(link); 
                         } else {
-                             el.addEventListener('input', inputListener); // Listener simple para tutorNombre
+                             el.addEventListener('input', inputListener); 
                         }
 
-                        container.appendChild(copyButton); // Añadir botón de copiar al final
-                        return container; // Devuelve el contenedor
+                        container.appendChild(copyButton); 
+                        return container; 
                     } else {
-                        // Para todos los demás campos (selects)
-                        el.addEventListener('input', inputListener); // Solo adjunta el listener
-                        return el; // Devuelve solo el input/select
+                        el.addEventListener('input', inputListener); 
+                        return el; 
                     }
                 };
-                // --- FIN MEJORA 7 & 8 ---
                 
                 // 0. Número
                 const tdNum = document.createElement('td');
-                tdNum.className = 'p-4 text-center text-gray-400';
+                // --- AJUSTE RESPONSIVO: Añadir no-wrap ---
+                tdNum.className = 'p-2 md:p-4 text-center text-gray-400 no-wrap'; 
                 tdNum.textContent = studentNumber;
                 tr.appendChild(tdNum);
 
-                // --- MEJORA 9 & 10: CELDA DE NOMBRE CON TODAS LAS ACCIONES ---
+                // --- AJUSTE RESPONSIVO: Celda Nombre y Acciones ---
                 const tdName = document.createElement('td');
-                tdName.className = 'p-2 font-medium text-white'; // p-2 para alinear
+                // Se quita wrap-on-mobile porque ahora el contenedor flex se encarga
+                tdName.className = 'p-2 font-medium text-white name-actions-cell'; 
                 
                 const nameContainer = document.createElement('div');
-                nameContainer.className = 'flex items-center justify-between gap-1'; // Contenedor Flex, gap-1
+                // Quitado flex-wrap para intentar mantener en una línea si cabe
+                nameContainer.className = 'flex items-center justify-start gap-1'; 
 
-                // Span para el nombre (editable)
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = name;
                 nameSpan.dataset.field = "name";
-                nameSpan.className = 'flex-grow p-2 rounded-md min-w-[150px]'; // p-2 para hitbox, min-w para que no se colapse
-                nameSpan.title = "Hacer clic para editar el nombre";
+                // Ajustes para que el nombre pueda usar el espacio disponible
+                nameSpan.className = 'p-1 rounded-md inline-block flex-grow min-w-0 overflow-hidden text-ellipsis'; // Permite elipsis si es muy largo
+                nameSpan.title = `${name} (clic para editar)`; // Tooltip con nombre completo
                 nameSpan.classList.add('cursor-pointer', 'hover:bg-gray-700/50');
                 
                 nameSpan.addEventListener('click', () => {
@@ -729,74 +767,69 @@
                         }
                         
                         updateStudentField(studentId, 'name', newNameTrimmed);
-                        nameSpan.textContent = newNameTrimmed; // Actualiza el span, no la celda
+                        nameSpan.textContent = newNameTrimmed; 
+                        nameSpan.title = `${newNameTrimmed} (clic para editar)`; // Actualizar tooltip
                     }
                 });
                 
-                // Contenedor para los botones de acción
                 const actionsContainer = document.createElement('div');
-                actionsContainer.className = 'flex items-center flex-shrink-0'; // Para que no se encoja
+                actionsContainer.className = 'flex items-center flex-shrink-0'; 
 
-                // Botón de Eliminar
                 const deleteButton = document.createElement('button');
-                deleteButton.className = 'text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-md';
+                deleteButton.className = 'text-gray-400 hover:text-red-500 transition-colors px-1 py-1 rounded-md'; 
                 deleteButton.type = "button";
-                deleteButton.innerHTML = '<i class="fas fa-trash-alt fa-lg"></i>';
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; 
                 deleteButton.title = 'Eliminar alumno permanentemente';
                 deleteButton.addEventListener('click', () => openDeleteModal(studentId));
-                actionsContainer.appendChild(deleteButton); // Añadir a su contenedor
+                actionsContainer.appendChild(deleteButton); 
 
-                // Botón de Ficha Rápida (Ojo)
                 const quickViewButton = document.createElement('button');
-                quickViewButton.className = 'text-gray-400 hover:text-blue-400 transition-colors px-2 py-1 rounded-md';
+                quickViewButton.className = 'text-gray-400 hover:text-blue-400 transition-colors px-1 py-1 rounded-md'; 
                 quickViewButton.type = "button";
-                quickViewButton.innerHTML = '<i class="fas fa-eye fa-lg"></i>';
-                quickViewButton.title = 'Ver ficha rápida del alumno';
+                quickViewButton.innerHTML = '<i class="fas fa-eye"></i>'; 
+                quickViewButton.title = 'Ver/Editar ficha rápida'; 
                 quickViewButton.addEventListener('click', () => openQuickView(studentId));
-                actionsContainer.appendChild(quickViewButton); // Añadir a su contenedor
+                actionsContainer.appendChild(quickViewButton); 
 
-                // Botón de Archivar/Reactivar
                 const archiveButton = document.createElement('button');
-                archiveButton.className = 'text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded-md';
+                archiveButton.className = 'text-gray-400 hover:text-orange-400 transition-colors px-1 py-1 rounded-md'; 
                 archiveButton.type = "button";
                 if (status === 'active') {
-                    archiveButton.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
+                    archiveButton.innerHTML = '<i class="fas fa-archive"></i>'; 
                     archiveButton.title = 'Archivar alumno';
                 } else {
-                    archiveButton.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
+                    archiveButton.innerHTML = '<i class="fas fa-undo"></i>'; 
                     archiveButton.title = 'Reactivar alumno';
                 }
-                archiveButton.addEventListener('click', () => toggleStudentStatus(tr)); // Pasar 'tr' es importante
-                actionsContainer.appendChild(archiveButton); // Añadir a su contenedor
+                archiveButton.addEventListener('click', () => toggleStudentStatus(tr)); 
+                actionsContainer.appendChild(archiveButton); 
 
-                // Añadir nombre y botones al contenedor principal
                 nameContainer.appendChild(nameSpan);
-                nameContainer.appendChild(actionsContainer); // Añadir el grupo de botones
+                nameContainer.appendChild(actionsContainer); 
                 
-                // Añadir contenedor principal a la celda
                 tdName.appendChild(nameContainer);
                 tr.appendChild(tdName);
-                // --- FIN MEJORA 9 & 10 ---
+                // --- FIN AJUSTE RESPONSIVO ---
 
                 // 2-6. Campos de formulario
-                tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad)));
-                tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion)));
-                tr.appendChild(createCell(createFormField('input', 'text', 'tutorNombre', studentData.tutorNombre)));
+                // --- AJUSTE RESPONSIVO: Añadir no-wrap a Edad y Autorización ---
+                tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad), 'no-wrap')); 
+                tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion), 'hide-on-mobile no-wrap')); 
+                tr.appendChild(createCell(createFormField('input', 'text', 'tutorNombre', studentData.tutorNombre), 'hide-on-mobile')); 
                 tr.appendChild(createCell(createFormField('input', 'tel', 'tutorMovil', studentData.tutorMovil)));
                 tr.appendChild(createCell(createFormField('input', 'email', 'email', studentData.email)));
 
-                // --- MEJORA 8: createTimestampTextarea MODIFICADO ---
-                const createTimestampTextarea = (field, value) => {
+                // --- AJUSTE RESPONSIVO: Textareas ---
+                 const createTimestampTextarea = (field, value) => {
                     const td = document.createElement('td');
-                    td.className = 'p-2 align-top'; // Añadido align-top para que las plantillas no muevan la caja
+                    td.className = 'p-2 align-top hide-on-mobile'; 
                     
-                    // Contenedor para textarea y botón de timestamp
                     const container = document.createElement('div');
                     container.className = 'textarea-container';
                     const textarea = document.createElement('textarea');
-                    textarea.className = 'form-element h-24';
+                    textarea.className = 'form-element h-24 text-sm'; 
                     textarea.dataset.field = field;
-                    textarea.placeholder = 'Añadir fecha con el botón...';
+                    textarea.placeholder = 'Añadir fecha/plantilla...'; 
                     textarea.value = value || '';
                     
                     textarea.addEventListener('input', (e) => {
@@ -813,9 +846,8 @@
 
                     container.appendChild(textarea);
                     container.appendChild(button);
-                    td.appendChild(container); // Añadir el textarea a la celda
+                    td.appendChild(container); 
 
-                    // Contenedor para los botones de plantilla
                     const templatesContainer = document.createElement('div');
                     templatesContainer.className = 'mt-1 flex flex-wrap gap-1';
 
@@ -829,57 +861,87 @@
                         templateButton.addEventListener('click', () => {
                             const timestamp = getTimestamp();
                             const newLine = textarea.value.trim() === '' ? '' : '\n';
-                            const newEntry = `${newLine}${timestamp}${templateText} `; // Añade espacio al final
+                            const newEntry = `${newLine}${timestamp}${templateText} `; 
                             
                             textarea.value += newEntry;
                             textarea.focus();
-                            // Mover el cursor al final
                             textarea.scrollTop = textarea.scrollHeight; 
                             
-                            // Guardar el cambio
                             updateStudentField(studentId, field, textarea.value);
                         });
                         
                         templatesContainer.appendChild(templateButton);
                     });
 
-                    td.appendChild(templatesContainer); // Añadir plantillas a la celda
+                    td.appendChild(templatesContainer); 
                     return td;
                 };
-                // --- FIN MEJORA 8 ---
+                // --- FIN AJUSTE RESPONSIVO ---
 
                 // 7. Registro de Llamadas
                 tr.appendChild(createTimestampTextarea('llamadas', studentData.llamadas));
                 // 8. Registro de Visitas
                 tr.appendChild(createTimestampTextarea('visitas', studentData.visitas));
                 
-                // --- MEJORA 10: Eliminar la celda de Acciones ---
-                // La celda tdActions y su contenido se han movido a la celda del nombre
-                // tr.appendChild(tdActions); 
-
                 return tr;
             }
 
-            // --- MEJORA 7: FUNCIÓN PARA ABRIR LA FICHA RÁPIDA ---
+            // --- MEJORA 7 & 14: FUNCIÓN PARA ABRIR Y POBLAR LA FICHA RÁPIDA (MODAL EDITABLE) ---
             function openQuickView(studentId) {
+                currentEditingStudentId = studentId; // Guardar ID para el guardado
                 const student = appData.students[studentId];
                 if (!student) return;
 
-                // Rellenar el modal
                 quickViewTitle.textContent = `Ficha Rápida: ${student.name || '(Sin nombre)'}`;
-                quickViewEdad.textContent = student.edad || '---';
-                quickViewAutorizacion.textContent = student.autorizacion || '---';
-                quickViewTutorNombre.textContent = student.tutorNombre || '---';
-                quickViewTutorMovil.textContent = student.tutorMovil || '---';
-                quickViewEmail.textContent = student.email || '---';
-                quickViewLlamadas.textContent = student.llamadas || ''; // El CSS se encarga del placeholder
-                quickViewVisitas.textContent = student.visitas || '';
+                quickViewFieldsContainer.innerHTML = ''; // Limpiar campos anteriores
+
+                // Definir los campos a mostrar/editar (excluyendo nombre, llamadas, visitas)
+                const fields = [
+                    { id: 'edad', label: 'Edad', type: 'select', options: ['', 'Menor de edad', 'Mayor de edad'] },
+                    { id: 'autorizacion', label: 'Autorización Salida', type: 'select', options: ['', 'Sí', 'No'] },
+                    { id: 'tutorNombre', label: 'Nombres Padres/Tutores', type: 'text' },
+                    { id: 'tutorMovil', label: 'Móvil Contacto', type: 'tel' },
+                    { id: 'email', label: 'Correo Electrónico', type: 'email' }
+                ];
+
+                // Crear dinámicamente los campos en el modal
+                fields.forEach(fieldInfo => {
+                    const div = document.createElement('div');
+                    const label = document.createElement('label');
+                    label.htmlFor = `quick-view-${fieldInfo.id}-input`;
+                    label.className = 'block text-sm font-medium text-gray-300 mb-1';
+                    label.textContent = fieldInfo.label;
+                    
+                    let inputElement;
+                    if (fieldInfo.type === 'select') {
+                        inputElement = document.createElement('select');
+                        inputElement.className = 'form-element form-element-select';
+                        inputElement.innerHTML = fieldInfo.options.map(opt => `<option value="${opt}">${opt || 'Seleccionar...'}</option>`).join('');
+                    } else {
+                        inputElement = document.createElement('input');
+                        inputElement.type = fieldInfo.type;
+                        inputElement.className = 'form-element';
+                        inputElement.placeholder = fieldInfo.label + '...';
+                    }
+                    inputElement.id = `quick-view-${fieldInfo.id}-input`;
+                    inputElement.dataset.field = fieldInfo.id; // Guardar el nombre del campo
+                    inputElement.value = student[fieldInfo.id] || ''; // Poblar con datos actuales
+
+                    div.appendChild(label);
+                    div.appendChild(inputElement);
+                    quickViewFieldsContainer.appendChild(div);
+                });
+
+
+                // Poblar los textareas de logs
+                quickViewLlamadasInput.value = student.llamadas || '';
+                quickViewVisitasInput.value = student.visitas || '';
 
                 // Mostrar el modal
                 quickViewModal.classList.remove('hidden');
                 quickViewModal.classList.add('flex');
             }
-            // --- FIN MEJORA 7 ---
+            // --- FIN MEJORA 7 & 14 ---
 
             // --- MEJORA 8: FUNCIONES HELPER (TIMESTAMP Y COPIAR) ---
             function getTimestamp() {
@@ -894,7 +956,7 @@
 
             function copyToClipboard(text, buttonElement) {
                 // Usar el textarea helper para asegurar la compatibilidad
-                clipboardHelper.value = text;
+                clipboardHelper.value = text || ''; // Asegurar que no sea null/undefined
                 clipboardHelper.select();
                 try {
                     // Usar document.execCommand como fallback para iframes
@@ -903,7 +965,7 @@
                     // Feedback Visual
                     if (buttonElement) {
                         const originalIcon = buttonElement.innerHTML;
-                        buttonElement.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; // Icono más grande
+                        buttonElement.innerHTML = '<i class="fas fa-check text-green-500"></i>'; // Icono más pequeño
                         buttonElement.classList.add('copied');
                         buttonElement.disabled = true;
                         setTimeout(() => {
@@ -923,33 +985,34 @@
 
 
             // --- MEJORA 10: toggleStudentStatus MODIFICADO ---
-            // Ahora busca el botón de archivar dentro del nameContainer
             function toggleStudentStatus(rowElement) {
                 const studentId = rowElement.dataset.studentId;
-                const currentStatus = rowElement.dataset.status;
+                if (!appData.students[studentId]) return; // Comprobación extra
+                
+                const currentStatus = appData.students[studentId].status || 'active';
                 const newStatus = (currentStatus === 'active') ? 'inactive' : 'active';
-                rowElement.dataset.status = newStatus;
                 
-                // Buscar el botón dentro del nameContainer de esta fila
-                const button = rowElement.querySelector('.flex .items-center.flex-shrink-0 button[title*="Archivar"], .flex .items-center.flex-shrink-0 button[title*="Reactivar"]');
-                
+                // Actualizar el estado en appData primero
+                appData.students[studentId].status = newStatus;
+                saveData(); // Guardar el cambio
+
+                // Actualizar la clase CSS de la fila
                 if (newStatus === 'inactive') {
                     rowElement.classList.add('student-inactive');
-                    if (button) {
-                        button.innerHTML = '<i class="fas fa-undo fa-lg"></i>';
-                        button.title = 'Reactivar alumno';
-                    }
                 } else {
                     rowElement.classList.remove('student-inactive');
-                    if (button) {
-                        button.innerHTML = '<i class="fas fa-archive fa-lg"></i>';
+                }
+
+                // Actualizar el botón de archivar/desarchivar en esa fila
+                const button = rowElement.querySelector('button[title*="Archivar"], button[title*="Reactivar"]');
+                if (button) {
+                     if (newStatus === 'inactive') {
+                        button.innerHTML = '<i class="fas fa-undo"></i>'; // Icono más pequeño
+                        button.title = 'Reactivar alumno';
+                    } else {
+                        button.innerHTML = '<i class="fas fa-archive"></i>'; // Icono más pequeño
                         button.title = 'Archivar alumno';
                     }
-                }
-                
-                if (appData.students[studentId]) {
-                    appData.students[studentId].status = newStatus;
-                    saveData();
                 }
             }
             // --- FIN MEJORA 10 ---
@@ -1019,6 +1082,7 @@
             });
 
             // --- LÓGICA DE EXPORTAR A CSV ---
+             // --- MEJORA 10: Actualizar exportación CSV (sin columna acciones) ---
             exportCsvButton.addEventListener('click', () => {
                 const headers = ["#", "Nombre del Alumno/a", "Edad", "Autorización Salida", "Nombres de los Padres", "Móvil de contacto", "Correo Electrónico", "Registro de Llamadas", "Registro de reuniones", "Estado"];
                 const escapeCsvCell = (cell) => {
@@ -1065,6 +1129,7 @@
                 link.click();
                 URL.revokeObjectURL(link.href);
             });
+            // --- FIN MEJORA 10 ---
 
             // --- LÓGICA DE GUARDAR/CARGAR DATOS (JSON) ---
             saveJsonButton.addEventListener('click', () => {
@@ -1122,8 +1187,12 @@
 
             document.querySelectorAll('.modal-close').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    e.target.closest('.modal-backdrop').classList.add('hidden');
-                    e.target.closest('.modal-backdrop').classList.remove('flex');
+                    // --- MEJORA 14: Evitar cerrar el modal QuickView desde este botón genérico ---
+                    const modal = e.target.closest('.modal-backdrop');
+                    if (modal && modal.id !== 'quick-view-modal') { // Solo cerrar si NO es el QuickView
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
                 }); 
             });
 
@@ -1186,8 +1255,11 @@
                 deleteModal.classList.remove('flex');
             });
 
+            // --- MEJORA 13: Lógica para el botón de borrar búsqueda ---
             searchInput.addEventListener('input', (e) => {
                 const searchText = e.target.value.toLowerCase().trim();
+                searchClearButton.style.display = searchText.length > 0 ? 'block' : 'none'; // Mostrar/ocultar 'X'
+                
                 const rows = studentTableBody.querySelectorAll('tr[data-student-id]'); 
                 let resultsFound = false;
 
@@ -1220,12 +1292,58 @@
                 }
             });
 
+            searchClearButton.addEventListener('click', () => {
+                searchInput.value = ''; // Limpiar input
+                searchInput.focus();
+                // Disparar el evento 'input' para que la tabla se actualice y la 'X' se oculte
+                const event = new Event('input', { bubbles: true });
+                searchInput.dispatchEvent(event); 
+            });
+            // --- FIN MEJORA 13 ---
+
+
+            // --- MEJORA 14: Lógica para guardar/cancelar en Quick View ---
+            quickViewSaveButton.addEventListener('click', () => {
+                if (!currentEditingStudentId || !appData.students[currentEditingStudentId]) return;
+
+                const studentData = appData.students[currentEditingStudentId];
+                let changed = false;
+
+                // Recorrer los inputs generados dinámicamente y los textareas
+                quickViewForm.querySelectorAll('[data-field]').forEach(input => {
+                    const field = input.dataset.field;
+                    const newValue = input.value;
+                    if (studentData.hasOwnProperty(field) && studentData[field] !== newValue) {
+                        studentData[field] = newValue;
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    saveData(); // Guardar todos los cambios
+                    renderStudentTable(); // Actualizar la tabla principal
+                    showAlert('Ficha actualizada correctamente.', 'Guardado', 'success');
+                }
+
+                // Cerrar modal
+                quickViewModal.classList.add('hidden');
+                quickViewModal.classList.remove('flex');
+                currentEditingStudentId = null; // Resetear ID
+            });
+
+            quickViewCancelButton.addEventListener('click', () => {
+                // Simplemente cerrar sin guardar
+                quickViewModal.classList.add('hidden');
+                quickViewModal.classList.remove('flex');
+                currentEditingStudentId = null; // Resetear ID
+            });
+            // --- FIN MEJORA 14 ---
+
+
             // Carga inicial de datos
             loadData();
         });
     </script>
 </body>
 </html>
-
-
 
