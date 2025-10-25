@@ -62,7 +62,6 @@
             table-layout: auto; /* Permitir que el navegador ajuste anchos */
         } 
         th, td { 
-            /* white-space: nowrap; Eliminado nowrap por defecto */
             white-space: normal; /* Permitir ajuste por defecto */
             vertical-align: top; 
             padding: 0.5rem; /* Padding base reducido */
@@ -70,7 +69,7 @@
         th {
              white-space: normal; /* Asegurar que los títulos largos también se ajusten */
         }
-        /* Forzar nowrap solo en celdas que realmente lo necesiten (pocas) */
+        /* Forzar nowrap solo en celdas que realmente lo necesiten */
         .no-wrap { white-space: nowrap !important; }
 
         /* En pantallas pequeñas, reducir padding aún más si es necesario */
@@ -83,13 +82,13 @@
             /* Asegurar que el nombre+acciones tenga espacio */
             .name-actions-cell { min-width: 200px; } 
         }
-        /* Ajustar min-width del textarea y asegurar ajuste de texto */
-        .textarea-container { position: relative; min-width: 180px; } /* Reducido min-width */
+        /* --- AJUSTE DE ANCHOS: Textarea min-width --- */
+        .textarea-container { position: relative; min-width: 160px; } /* Reducido aún más */
         .textarea-container textarea { 
             white-space: pre-wrap; 
-            word-break: break-word; /* Forzar ruptura de palabras largas si es necesario */
+            word-break: break-word; 
         }
-        /* --- FIN AJUSTE RESPONSIVO --- */
+        /* --- FIN AJUSTE DE ANCHOS --- */
         
         /* Botón de timestamp */
         .add-timestamp-button {
@@ -201,7 +200,7 @@
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div class="w-full"> 
                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3"> 
-                        APLICACIÓN TUTORÍA V3
+                        APLICACIÓN TUTORÍA V5
                         <span id="save-status" class="text-lg text-green-400 opacity-0 transition-opacity duration-500 whitespace-nowrap"> 
                             Guardado ✓
                         </span>
@@ -273,15 +272,17 @@
             <table class="w-full text-left">
                 <thead class="border-b border-gray-600 text-orange-400">
                     <tr>
-                        <th class="p-2 md:p-4 no-wrap">#</th> <!-- No wrap para el número -->
-                        <th class="p-2 md:p-4">Nombre y Acciones</th>
-                        <th class="p-2 md:p-4 no-wrap">Edad</th> <!-- No wrap para Edad -->
-                        <th class="p-2 md:p-4 hide-on-mobile no-wrap">Autorización Salida</th> <!-- No wrap -->
-                        <th class="p-2 md:p-4 hide-on-mobile">Nombres Padres</th>
-                        <th class="p-2 md:p-4">Móvil</th>
-                        <th class="p-2 md:p-4">Email</th>
-                        <th class="p-2 md:p-4 hide-on-mobile">Llamadas</th>
-                        <th class="p-2 md:p-4 hide-on-mobile">Reuniones</th>
+                         <!-- --- AJUSTE DE ANCHOS: Añadir clases a los TH --- -->
+                        <th class="p-2 md:p-4 no-wrap w-12">#</th> 
+                        <th class="p-2 md:p-4 min-w-[250px]">Nombre y Acciones</th>
+                        <th class="p-2 md:p-4 no-wrap w-24">Edad</th> 
+                        <th class="p-2 md:p-4 hide-on-mobile no-wrap w-32">Autorización Salida</th> 
+                        <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Nombres Padres</th>
+                        <th class="p-2 md:p-4 min-w-[180px]">Móvil</th>
+                        <th class="p-2 md:p-4 min-w-[200px]">Email</th>
+                        <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Llamadas</th>
+                        <th class="p-2 md:p-4 hide-on-mobile min-w-[200px]">Reuniones</th>
+                         <!-- --- FIN AJUSTE DE ANCHOS --- -->
                     </tr>
                 </thead>
                 <tbody id="student-table-body">
@@ -729,26 +730,22 @@
                 
                 // 0. Número
                 const tdNum = document.createElement('td');
-                // --- AJUSTE RESPONSIVO: Añadir no-wrap ---
                 tdNum.className = 'p-2 md:p-4 text-center text-gray-400 no-wrap'; 
                 tdNum.textContent = studentNumber;
                 tr.appendChild(tdNum);
 
                 // --- AJUSTE RESPONSIVO: Celda Nombre y Acciones ---
                 const tdName = document.createElement('td');
-                // Se quita wrap-on-mobile porque ahora el contenedor flex se encarga
                 tdName.className = 'p-2 font-medium text-white name-actions-cell'; 
                 
                 const nameContainer = document.createElement('div');
-                // Quitado flex-wrap para intentar mantener en una línea si cabe
                 nameContainer.className = 'flex items-center justify-start gap-1'; 
 
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = name;
                 nameSpan.dataset.field = "name";
-                // Ajustes para que el nombre pueda usar el espacio disponible
-                nameSpan.className = 'p-1 rounded-md inline-block flex-grow min-w-0 overflow-hidden text-ellipsis'; // Permite elipsis si es muy largo
-                nameSpan.title = `${name} (clic para editar)`; // Tooltip con nombre completo
+                nameSpan.className = 'p-1 rounded-md inline-block flex-grow min-w-0 overflow-hidden text-ellipsis'; 
+                nameSpan.title = `${name} (clic para editar)`; 
                 nameSpan.classList.add('cursor-pointer', 'hover:bg-gray-700/50');
                 
                 nameSpan.addEventListener('click', () => {
@@ -768,7 +765,7 @@
                         
                         updateStudentField(studentId, 'name', newNameTrimmed);
                         nameSpan.textContent = newNameTrimmed; 
-                        nameSpan.title = `${newNameTrimmed} (clic para editar)`; // Actualizar tooltip
+                        nameSpan.title = `${newNameTrimmed} (clic para editar)`; 
                     }
                 });
                 
@@ -812,7 +809,6 @@
                 // --- FIN AJUSTE RESPONSIVO ---
 
                 // 2-6. Campos de formulario
-                // --- AJUSTE RESPONSIVO: Añadir no-wrap a Edad y Autorización ---
                 tr.appendChild(createCell(createFormField('select', '', 'edad', studentData.edad), 'no-wrap')); 
                 tr.appendChild(createCell(createFormField('select', '', 'autorizacion', studentData.autorizacion), 'hide-on-mobile no-wrap')); 
                 tr.appendChild(createCell(createFormField('input', 'text', 'tutorNombre', studentData.tutorNombre), 'hide-on-mobile')); 
