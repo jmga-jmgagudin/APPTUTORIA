@@ -198,39 +198,38 @@
         
         <!-- Cabecera de la aplicación -->
         <header class="mb-8 p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                 <!-- Contenedor del título y los campos de info -->
-                 <!-- Eliminado md:w-auto para que ocupe todo el ancho disponible -->
-                <div class="w-full"> 
+            <!-- --- REESTRUCTURACIÓN CABECERA --- -->
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <!-- Columna Izquierda: Título y Campos (ocupa espacio disponible) -->
+                <div class="w-full flex-grow"> 
                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3"> 
                         APLICACIÓN TUTORÍA V3
                         <span id="save-status" class="text-lg text-green-400 opacity-0 transition-opacity duration-500 whitespace-nowrap"> 
                             Guardado ✓
                         </span>
                     </h1>
-                      <!-- --- AJUSTE DE ANCHOS CABECERA --- -->
-                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-6 gap-y-4">
-                          <div class="lg:col-span-2">
-                              <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Tutor/a</label>
-                              <input type="text" id="tutorName" class="form-element text-sm" placeholder="Nombre...">
-                          </div>
-                          <div class="lg:col-span-2">
-                              <label for="centerName" class="block text-sm font-medium text-gray-300 mb-1">Centro</label>
-                              <input type="text" id="centerName" class="form-element text-sm" placeholder="Centro...">
-                          </div>
-                          <div class="lg:col-span-1">
-                              <label for="groupName" class="block text-sm font-medium text-gray-300 mb-1">Grupo</label>
-                              <input type="text" id="groupName" class="form-element text-sm" placeholder="Grupo...">
-                          </div>
-                          <div class="lg:col-span-1">
-                              <label for="courseYear" class="block text-sm font-medium text-gray-300 mb-1">Curso</label>
-                              <input type="text" id="courseYear" class="form-element text-sm" placeholder="Académico...">
-                          </div>
+                    <!-- Campos de información general -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-6 gap-y-4">
+                        <div class="lg:col-span-2">
+                            <label for="tutorName" class="block text-sm font-medium text-gray-300 mb-1">Tutor/a</label>
+                            <input type="text" id="tutorName" class="form-element text-sm" placeholder="Nombre...">
+                        </div>
+                        <div class="lg:col-span-2">
+                            <label for="centerName" class="block text-sm font-medium text-gray-300 mb-1">Centro</label>
+                            <input type="text" id="centerName" class="form-element text-sm" placeholder="Centro...">
+                        </div>
+                        <div class="lg:col-span-1">
+                            <label for="groupName" class="block text-sm font-medium text-gray-300 mb-1">Grupo</label>
+                            <input type="text" id="groupName" class="form-element text-sm" placeholder="Grupo...">
+                        </div>
+                        <div class="lg:col-span-1">
+                            <label for="courseYear" class="block text-sm font-medium text-gray-300 mb-1">Curso</label>
+                            <input type="text" id="courseYear" class="form-element text-sm" placeholder="Académico...">
+                        </div>
                     </div>
-                     <!-- --- FIN AJUSTE DE ANCHOS CABECERA --- -->
                 </div>
-                <!-- Botonera de acciones -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 md:mt-0 self-start md:self-center w-full md:w-auto">
+                <!-- Columna Derecha: Botonera (ocupa espacio necesario, no crece) -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 lg:mt-0 self-start lg:self-center w-full lg:w-auto flex-shrink-0">
                     <!-- Fila 1 -->
                     <div class="flex flex-col sm:flex-row gap-2 w-full">
                          <button id="add-student-button" class="w-full sm:w-auto text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition-colors whitespace-nowrap">
@@ -257,6 +256,7 @@
                     </div>
                 </div>
             </div>
+             <!-- --- FIN REESTRUCTURACIÓN CABECERA --- -->
         </header>
 
         <!-- Contenedor de la tabla -->
